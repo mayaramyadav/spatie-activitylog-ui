@@ -1,0 +1,75 @@
+{
+    "name": "mayaramyadav/spatie-activitylog-ui",
+    "description": "A beautiful, modern UI for Spatie's Activity Log with advanced filtering, analytics, and real-time features.",
+    "keywords": [
+        "spatie",
+        "laravel-activitylog",
+        "activitylog",
+        "activity-log",
+        "audit",
+        "audit-log",
+        "laravel",
+        "laravel-package",
+        "ui",
+        "tailwind",
+        "alpinejs",
+        "chartjs",
+        "analytics",
+        "dashboard",
+        "timeline",
+        "export",
+        "excel",
+        "csv",
+        "pdf",
+        "logging",
+        "monitoring"
+    ],
+    "homepage": "https://github.com/mayaramyadav/spatie-activitylog-ui",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mayaram",
+            "email": "info@mayaram.in",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "spatie/laravel-activitylog": "^5.0",
+        "illuminate/contracts": "^11.0|^12.0|^13.0"
+    },
+    "suggest": {
+        "maatwebsite/excel": "Required for exporting activity logs to XLSX format.",
+        "barryvdh/laravel-dompdf": "Required for exporting activity logs to PDF format."
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^10.1|^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MayaramYadav\\SpatieActivitylogUi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MayaramYadav\\SpatieActivitylogUi\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MayaramYadav\\SpatieActivitylogUi\\SpatieActivitylogUiServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
