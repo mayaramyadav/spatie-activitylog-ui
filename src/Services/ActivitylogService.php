@@ -74,7 +74,7 @@ class ActivitylogService
 
         // Property filters
         if (!empty($filters['property_key'])) {
-            $query->whereJsonContains('attribute_changes', [$filters['property_key'] => null]);
+            $query->whereJsonContains('properties', [$filters['property_key'] => null]);
         }
 
         return $query;

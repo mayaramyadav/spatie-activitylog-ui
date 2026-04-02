@@ -69,7 +69,7 @@ class ActivitiesExport implements FromCollection, WithHeadings, WithMapping, Wit
                 'changes' => $activity->hasPropertyChanges() ?
                     $activity->getChangesSummary() :
                     'No changes tracked',
-                'attribute_changes' => json_encode($activity->attribute_changes),
+                'attribute_changes' => json_encode($activity->properties),
                 default => $activity->{$column} ?? '',
             };
         }

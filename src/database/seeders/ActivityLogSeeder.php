@@ -28,10 +28,8 @@ class ActivityLogSeeder extends Seeder
                 ->performedOn($user)
                 ->event('updated')
                 ->withProperties([
-                    'attribute_changes' => [
-                        'attributes' => ['name' => 'Updated User Name'],
-                        'old' => ['name' => 'Old User Name']
-                    ]
+                    'attributes' => ['name' => 'Updated User Name'],
+                    'old' => ['name' => 'Old User Name']
                 ])
                 ->log('User profile updated');
 

@@ -13,8 +13,7 @@ class Activity extends SpatieActivity
      * The attributes that should be cast.
      */
     protected $casts = [
-        'attribute_changes' => 'array',
-        'attribute_changes' => 'array',
+        'properties' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -122,7 +121,7 @@ class Activity extends SpatieActivity
 
         return $query->where(function (Builder $q) use ($search) {
             $q->where('description', 'like', "%{$search}%")
-              ->orWhere('attribute_changes', 'like', "%{$search}%")
+              ->orWhere('properties', 'like', "%{$search}%")
               ->orWhereHas('causer', function (Builder $causerQuery) use ($search) {
                   $causerQuery->where('name', 'like', "%{$search}%")
                              ->orWhere('email', 'like', "%{$search}%");
@@ -163,7 +162,7 @@ class Activity extends SpatieActivity
      */
     public function getFormattedChangesAttribute(): array
     {
-        $changesData = $this->attribute_changes ?? [];
+        $changesData = $this->properties ?? [];
         $changes = [];
 
         if (isset($changesData['old'], $changesData['attributes'])) {
@@ -213,7 +212,7 @@ class Activity extends SpatieActivity
      */
     public function hasPropertyChanges(): bool
     {
-        $changesData = $this->attribute_changes ?? [];
+        $changesData = $this->properties ?? [];
         return isset($changesData['old']) && isset($changesData['attributes']);
     }
 

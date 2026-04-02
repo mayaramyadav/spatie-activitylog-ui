@@ -81,7 +81,7 @@
                     </div>
 
                     <!-- Compact Attribute Preview -->
-                    <div x-show="activity.attribute_changes && Object.keys(activity.attribute_changes).length > 0"
+                    <div x-show="activity.properties && Object.keys(activity.properties).length > 0"
                          x-data="{ expanded: false }"
                          class="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800/50">
                         <button @click="expanded = !expanded"
@@ -91,26 +91,26 @@
                         </button>
 
                         <div x-show="expanded" x-collapse class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <template x-if="activity.attribute_changes.old">
+                            <template x-if="activity.properties.old">
                                 <div class="space-y-2">
                                     <h5 class="text-[9px] font-black uppercase tracking-[0.2em] text-red-500/70 dark:text-red-400/50 flex items-center">
                                         <div class="w-1 h-1 bg-current rounded-full mr-2"></div> Previous
                                     </h5>
                                     <div class="bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl p-3">
                                         <pre class="text-[10px] font-mono text-red-800 dark:text-red-300 leading-relaxed custom-scrollbar opacity-80" 
-                                             x-text="JSON.stringify(activity.attribute_changes.old, null, 2)"></pre>
+                                             x-text="JSON.stringify(activity.properties.old, null, 2)"></pre>
                                     </div>
                                 </div>
                             </template>
                             
-                            <template x-if="activity.attribute_changes.attributes">
+                            <template x-if="activity.properties.attributes">
                                 <div class="space-y-2">
                                     <h5 class="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500/70 dark:text-emerald-400/50 flex items-center">
                                         <div class="w-1 h-1 bg-current rounded-full mr-2"></div> Updated
                                     </h5>
                                     <div class="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-xl p-3">
                                         <pre class="text-[10px] font-mono text-emerald-800 dark:text-emerald-300 leading-relaxed custom-scrollbar opacity-80" 
-                                             x-text="JSON.stringify(activity.attribute_changes.attributes, null, 2)"></pre>
+                                             x-text="JSON.stringify(activity.properties.attributes, null, 2)"></pre>
                                     </div>
                                 </div>
                             </template>

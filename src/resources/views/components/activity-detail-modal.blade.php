@@ -95,14 +95,14 @@
                         </div>
 
                         <!-- Detailed Diff -->
-                        <div x-show="activity.attribute_changes && Object.keys(activity.attribute_changes).length > 0" class="space-y-6">
+                        <div x-show="activity.properties && Object.keys(activity.properties).length > 0" class="space-y-6">
                             <div class="flex items-center gap-4">
                                 <h4 class="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-[0.2em]">State Transformation</h4>
                                 <div class="h-px flex-1 bg-zinc-100 dark:bg-zinc-800"></div>
                             </div>
 
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <template x-if="activity.attribute_changes.old">
+                                <template x-if="activity.properties.old">
                                     <div class="space-y-4">
                                         <div class="flex items-center justify-between px-2">
                                             <span class="text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-widest flex items-center">
@@ -113,12 +113,12 @@
                                         <div class="relative bg-zinc-900 rounded-3xl p-6 border border-zinc-800 overflow-hidden group">
                                             <div class="absolute inset-0 bg-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                             <pre class="text-[11px] font-mono text-red-400/80 leading-relaxed custom-scrollbar relative z-10" 
-                                                 x-text="JSON.stringify(activity.attribute_changes.old, null, 2)"></pre>
+                                                 x-text="JSON.stringify(activity.properties.old, null, 2)"></pre>
                                         </div>
                                     </div>
                                 </template>
 
-                                <template x-if="activity.attribute_changes.attributes">
+                                <template x-if="activity.properties.attributes">
                                     <div class="space-y-4 font-inter">
                                         <div class="flex items-center justify-between px-2">
                                             <span class="text-[10px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-widest flex items-center">
@@ -129,17 +129,17 @@
                                         <div class="relative bg-zinc-900 rounded-3xl p-6 border border-zinc-800 overflow-hidden group">
                                             <div class="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                             <pre class="text-[11px] font-mono text-emerald-400/80 leading-relaxed custom-scrollbar relative z-10" 
-                                                 x-text="JSON.stringify(activity.attribute_changes.attributes, null, 2)"></pre>
+                                                 x-text="JSON.stringify(activity.properties.attributes, null, 2)"></pre>
                                         </div>
                                     </div>
                                 </template>
                             </div>
 
                             <!-- Fallback for generic metadata/properties -->
-                            <template x-if="!activity.attribute_changes.old && !activity.attribute_changes.attributes">
+                            <template x-if="!activity.properties.old && !activity.properties.attributes">
                                 <div class="bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
                                     <pre class="text-[11px] font-mono text-zinc-400 leading-relaxed" 
-                                         x-text="JSON.stringify(activity.attribute_changes, null, 2)"></pre>
+                                         x-text="JSON.stringify(activity.properties, null, 2)"></pre>
                                 </div>
                             </template>
                         </div>
