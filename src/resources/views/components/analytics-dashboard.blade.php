@@ -250,11 +250,24 @@ document.addEventListener('alpine:init', () => {
             this.loadAnalytics();
         },
 
-        async loadAnalytics() {
+        async loadAnalytics(filters = {}) {
             try {
                 this.loading = true;
                 let url = '{{ route("spatie-activitylog-ui.api.analytics") }}';
                 let params = new URLSearchParams();
+
+                Object.entries(filters).forEach(([key, value]) => {
+                    if (value === null || value === undefined || value === '') {
+                        return;
+                    }
+
+                    if (Array.isArray(value)) {
+                        value.forEach((item) => params.append(`${key}[]`, item));
+                        return;
+                    }
+
+                    params.append(key, value);
+                });
 
                 if (this.selectedPeriod === 'custom') {
                     if (this.customStartDate) params.append('start_date', this.customStartDate);
@@ -275,27 +288,34 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
 
                 const data = await response.json();
 
-                if (data.success) {
-                    this.stats = {
-                        total: data.data.total_activities,
-                        today: data.data.activities_today,
-                        activities_this_week: data.data.activities_this_week,
-                        activities_this_month: data.data.activities_this_month
-                    };
+                if (!data.success) {
+                    throw new Error(data.message || 'Analytics request failed');
+                }
 
-                    this.eventTypes = data.data.event_types;
-                    this.topUsers = data.data.top_users;
-                    this.timeline = data.data.timeline;
-                    this.popularModels = data.data.popular_models;
-                    this.activityTrends = data.data.activity_trends;
+                this.stats = {
+                    total: data.data.total_activities ?? 0,
+                    today: data.data.activities_today ?? 0,
+                    activities_this_week: data.data.activities_this_week ?? 0,
+                    activities_this_month: data.data.activities_this_month ?? 0
+                };
 
-                    if (this.activityTrends && document.getElementById('activityTrendsChart')) {
+                this.eventTypes = data.data.event_types ?? [];
+                this.topUsers = data.data.top_users ?? [];
+                this.timeline = data.data.timeline ?? [];
+                this.popularModels = data.data.popular_models ?? [];
+                this.activityTrends = data.data.activity_trends ?? { dates: [], datasets: [] };
+
+                if (this.activityTrends && document.getElementById('activityTrendsChart')) {
+                    try {
                         this.initActivityTrendsChart();
+                    } catch (chartError) {
+                        console.error('Error initializing analytics chart:', chartError);
                     }
                 }
             } catch (error) {
@@ -318,16 +338,16 @@ document.addEventListener('alpine:init', () => {
 
             const ctx = canvas.getContext('2d');
             const isDark = document.documentElement.classList.contains('dark');
-            const primaryColor = isDark ? '#818cf8' : '#4f46e5';
-            const gridColor = isDark ? 'rgba(39, 39, 42, 0.5)' : 'rgba(228, 228, 231, 0.5)';
-            const textColor = isDark ? '#71717a' : '#a1a1aa';
+            const primaryColor = isDark ? '#2dd4bf' : '#0f766e';
+            const gridColor = isDark ? 'rgba(51, 65, 85, 0.45)' : 'rgba(203, 213, 225, 0.6)';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
 
             this.chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: this.activityTrends.dates,
                     datasets: this.activityTrends.datasets.map((dataset, idx) => {
-                        const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+                        const colors = ['#0f766e', '#10b981', '#0284c7', '#f59e0b', '#e11d48', '#7c3aed'];
                         const color = colors[idx % colors.length];
                         
                         return {

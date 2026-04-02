@@ -2,19 +2,19 @@
 <div x-data="filterPanel()"
      x-init="init()"
      @clear-filters.window="clearAllFilters()"
-     class="bg-white dark:bg-zinc-900 rounded-2xl shadow-soft border border-zinc-200 dark:border-zinc-800 overflow-hidden transition-all duration-300">
+     class="overflow-hidden rounded-3xl border border-slate-200 bg-white/92 shadow-soft transition-all duration-300 dark:border-slate-800 dark:bg-slate-900/88">
 
     <!-- Header -->
-    <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-800/30">
+    <div class="flex items-center justify-between border-b border-slate-200 bg-stone-50/85 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/35">
         <div class="flex items-center space-x-2.5">
-            <div class="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="rounded-lg bg-teal-50 p-1.5 dark:bg-teal-950/30">
+                <svg class="h-4 w-4 text-teal-700 dark:text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
                 </svg>
             </div>
-            <h3 class="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Filters</h3>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Filters</h3>
             <span x-show="hasActiveFilters" x-cloak
-                  class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                  class="flex h-2 w-2 animate-pulse rounded-full bg-teal-500"></span>
         </div>
 
         <div class="flex items-center space-x-1">
@@ -22,19 +22,19 @@
             @if(config('spatie-activitylog-ui.features.saved_views', true))
             <div x-data="{ open: false }" class="relative">
                 <button @click="open = !open" 
-                        class="p-1.5 text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-zinc-800 rounded-lg transition-all"
+                        class="rounded-lg p-1.5 text-slate-400 transition-all hover:bg-white hover:text-teal-700 dark:hover:bg-slate-800 dark:hover:text-teal-300"
                         title="Saved Views">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                     </svg>
                 </button>
                 <div x-show="open" x-cloak @click.away="open = false" 
-                     class="absolute right-0 mt-2 w-56 glass rounded-xl shadow-xl z-30 border overflow-hidden">
+                     class="glass absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-2xl border shadow-xl">
                     <div class="p-2 space-y-1">
                         <template x-for="view in savedViews" :key="view.id">
                             <div class="flex items-center group">
                                 <button @click="loadSavedView(view); open = false" 
-                                        class="flex-1 text-left px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
+                                        class="flex-1 rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-teal-50 dark:text-slate-300 dark:hover:bg-teal-950/20"
                                         x-text="view.name"></button>
                                 <button @click.stop="$dispatch('delete-view', view.id)" 
                                         class="p-2 text-zinc-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
@@ -42,8 +42,8 @@
                                 </button>
                             </div>
                         </template>
-                        <button @click="showSaveViewModal(); open = false" 
-                                class="w-full text-left px-3 py-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg border border-dashed border-indigo-200 dark:border-indigo-800/50">
+                                <button @click="showSaveViewModal(); open = false" 
+                                class="w-full rounded-lg border border-dashed border-teal-200 px-3 py-2 text-left text-xs font-bold text-teal-700 hover:bg-teal-50 dark:border-teal-800/50 dark:text-teal-300 dark:hover:bg-teal-950/20">
                             + Save This View
                         </button>
                     </div>
@@ -52,7 +52,7 @@
             @endif
 
             <button @click="clearAllFilters()" :disabled="!hasActiveFilters"
-                    class="p-1.5 text-zinc-400 hover:text-rose-500 hover:bg-white dark:hover:bg-zinc-800 rounded-lg disabled:opacity-30 transition-all"
+                    class="rounded-lg p-1.5 text-slate-400 transition-all hover:bg-white hover:text-rose-500 disabled:opacity-30 dark:hover:bg-slate-800"
                     title="Clear All">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -469,28 +469,28 @@
     <div class="p-5 space-y-6">
         <!-- Search Section -->
         <div class="space-y-2">
-            <label for="search" class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Global Search</label>
+            <label for="search" class="pl-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Global Search</label>
             <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-zinc-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-4 w-4 text-slate-400 transition-colors group-focus-within:text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
                 <input type="text" id="search" x-model="filters.search" @input.debounce.500ms="applyFilters()"
                        placeholder="Search by ID, properties..."
-                       class="block w-full pl-10 pr-3 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-white transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600 shadow-inner-soft">
+                       class="block w-full rounded-2xl border border-slate-200 bg-stone-50 py-2.5 pl-10 pr-3 text-sm shadow-inner-soft transition-all placeholder:text-slate-400 focus:border-teal-400 focus:ring-2 focus:ring-teal-500/15 dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-100 dark:placeholder:text-slate-600">
             </div>
         </div>
 
         <!-- Date Range Section -->
         <div class="space-y-3">
-            <label class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Time Horizon</label>
+            <label class="pl-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Time Horizon</label>
             <div class="grid grid-cols-2 gap-2">
                 <template x-for="preset in datePresets" :key="preset.value">
                     <button @click="setDatePreset(preset.value)"
                             :class="filters.date_preset === preset.value 
-                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 border-indigo-500' 
-                                : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:border-indigo-400 dark:hover:border-zinc-600'"
+                                ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/20 border-teal-500' 
+                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-slate-600'"
                             class="px-3 py-2 text-xs font-bold rounded-xl border transition-all duration-200 text-center"
                             x-text="preset.label"></button>
                 </template>
@@ -500,14 +500,14 @@
             <div x-show="filters.date_preset === 'custom'" x-collapse class="pt-2 space-y-3">
                 <div class="grid grid-cols-1 gap-3">
                     <div class="space-y-1">
-                        <span class="text-[10px] font-bold text-zinc-400 uppercase ml-1">From</span>
+                        <span class="ml-1 text-[10px] font-bold uppercase text-slate-400">From</span>
                         <input type="date" x-model="filters.start_date" @change="applyFilters()"
-                               class="block w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/20 dark:text-white">
+                               class="block w-full rounded-xl border border-slate-200 bg-stone-50 px-3 py-2 text-xs focus:ring-2 focus:ring-teal-500/15 dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-100">
                     </div>
                     <div class="space-y-1">
-                        <span class="text-[10px] font-bold text-zinc-400 uppercase ml-1">To</span>
+                        <span class="ml-1 text-[10px] font-bold uppercase text-slate-400">To</span>
                         <input type="date" x-model="filters.end_date" @change="applyFilters()"
-                               class="block w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/50 rounded-xl focus:ring-2 focus:ring-indigo-500/20 dark:text-white">
+                               class="block w-full rounded-xl border border-slate-200 bg-stone-50 px-3 py-2 text-xs focus:ring-2 focus:ring-teal-500/15 dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-100">
                     </div>
                 </div>
             </div>

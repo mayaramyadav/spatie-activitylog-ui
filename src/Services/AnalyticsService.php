@@ -5,6 +5,7 @@ namespace Mayaram\SpatieActivitylogUi\Services;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Mayaram\SpatieActivitylogUi\Models\Activity;
 
 class AnalyticsService
@@ -20,8 +21,12 @@ class AnalyticsService
         $cacheDuration = config('spatie-activitylog-ui.analytics.cache_duration', 3600);
 
         return Cache::remember($cacheKey, $cacheDuration, function () use ($filters) {
-            $eventTypeBreakdown = $this->getEventTypeBreakdown($filters);
-            $totalActivities = $this->getTotalActivities($filters);
+            $totalActivities = $this->safely('total_activities', fn () => $this->getTotalActivities($filters), 0, $filters);
+            $activitiesToday = $this->safely('activities_today', fn () => $this->getActivitiesToday($filters), 0, $filters);
+            $activitiesThisWeek = $this->safely('activities_this_week', fn () => $this->getActivitiesThisWeek($filters), 0, $filters);
+            $activitiesThisMonth = $this->safely('activities_this_month', fn () => $this->getActivitiesThisMonth($filters), 0, $filters);
+            $activeUsersCount = $this->safely('active_users_count', fn () => $this->getActiveUsersCount($filters), 0, $filters);
+            $eventTypeBreakdown = $this->safely('event_type_breakdown', fn () => $this->getEventTypeBreakdown($filters), collect(), $filters);
 
             // Calculate percentages for event types
             $eventTypesWithPercentages = $eventTypeBreakdown->map(function ($item) use ($totalActivities) {
@@ -37,21 +42,42 @@ class AnalyticsService
             return [
                 'stats' => [
                     'total' => number_format($totalActivities),
-                    'today' => number_format($this->getActivitiesToday($filters)),
-                    'active_users' => number_format($this->getActiveUsersCount($filters)),
-                    'this_week' => number_format($this->getActivitiesThisWeek($filters)),
+                    'today' => number_format($activitiesToday),
+                    'active_users' => number_format($activeUsersCount),
+                    'this_week' => number_format($activitiesThisWeek),
                 ],
                 'event_types' => $eventTypesWithPercentages->toArray(),
-                'top_users' => $this->getTopUsers(10, $filters)->toArray(),
-                'timeline' => $this->getRecentTimeline($filters),
+                'top_users' => $this->safely('top_users', fn () => $this->getTopUsers(10, $filters)->toArray(), [], $filters),
+                'timeline' => $this->safely('timeline', fn () => $this->getRecentTimeline($filters), [], $filters),
                 'total_activities' => $totalActivities,
-                'activities_today' => $this->getActivitiesToday($filters),
-                'activities_this_week' => $this->getActivitiesThisWeek($filters),
-                'activities_this_month' => $this->getActivitiesThisMonth($filters),
-                'popular_models' => $this->getPopularModels(10, $filters),
-                'activity_trends' => $this->getActivityTrends(30, $filters),
+                'activities_today' => $activitiesToday,
+                'activities_this_week' => $activitiesThisWeek,
+                'activities_this_month' => $activitiesThisMonth,
+                'popular_models' => $this->safely('popular_models', fn () => $this->getPopularModels(10, $filters)->toArray(), [], $filters),
+                'activity_trends' => $this->safely('activity_trends', fn () => $this->getActivityTrends(30, $filters), [
+                    'dates' => [],
+                    'datasets' => [],
+                ], $filters),
             ];
         });
+    }
+
+    /**
+     * Execute analytics subqueries defensively so one failing panel does not break the whole dashboard.
+     */
+    protected function safely(string $segment, callable $callback, mixed $fallback, array $filters = []): mixed
+    {
+        try {
+            return $callback();
+        } catch (\Throwable $e) {
+            Log::warning('Analytics segment failed', [
+                'segment' => $segment,
+                'message' => $e->getMessage(),
+                'filters' => $filters,
+            ]);
+
+            return $fallback;
+        }
     }
 
     /**

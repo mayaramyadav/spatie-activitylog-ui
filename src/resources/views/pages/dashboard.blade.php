@@ -7,21 +7,21 @@
 @section('content')
     <div x-data="activityDashboard()" x-init="init()" class="space-y-8 animate-in fade-in duration-700">
         <!-- Modern Header -->
-        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-6">
+        <div class="flex flex-col gap-4 border-b border-slate-200 dark:border-slate-800 pb-6 md:flex-row md:items-end md:justify-between">
             <div>
                 <nav class="flex mb-2" aria-label="Breadcrumb">
-                    <ol class="flex items-center space-x-2 text-xs font-medium text-zinc-500 dark:text-zinc-500">
-                        <li><a href="#" class="hover:text-indigo-600 transition-colors">Dashboard</a></li>
+                    <ol class="flex items-center space-x-2 text-xs font-medium text-slate-500 dark:text-slate-500">
+                        <li><a href="#" class="transition-colors hover:text-teal-600 dark:hover:text-teal-400">Dashboard</a></li>
                         <li>
                             <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
                         </li>
-                        <li class="text-zinc-900 dark:text-zinc-300">Activity Logs</li>
+                        <li class="text-slate-900 dark:text-slate-200">Activity Logs</li>
                     </ol>
                 </nav>
-                <h1 class="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
                     {{ config('spatie-activitylog-ui.ui.title', 'Activity Log') }}
                 </h1>
-                <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 max-w-2xl">
+                <p class="mt-2 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400">
                     Comprehensive audit trail and system activity monitoring with real-time analytics and advanced filtering.
                 </p>
             </div>
@@ -31,8 +31,8 @@
                 <!-- Export Action -->
                 @if(config('spatie-activitylog-ui.features.exports', true))
                     <button @click="exportActivities()"
-                        class="inline-flex items-center px-4 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-soft text-sm font-semibold text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200">
-                        <svg class="w-4.5 h-4.5 mr-2 text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="inline-flex items-center rounded-2xl border border-slate-200 bg-white/90 px-4 py-2 text-sm font-semibold text-slate-700 shadow-soft transition-all duration-200 hover:border-teal-300 hover:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/30 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-teal-700 dark:hover:bg-slate-800">
+                        <svg class="mr-2 h-4.5 w-4.5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 7h10a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z"></path>
                         </svg>
                         Export Data
@@ -40,9 +40,9 @@
                 @endif
 
                 <!-- Segmented Control View Switcher -->
-                <div class="inline-flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-inner-soft">
+                <div class="inline-flex rounded-2xl border border-slate-200 bg-white/75 p-1 shadow-inner-soft dark:border-slate-800 dark:bg-slate-900/75">
                     <button @click="switchView('table')"
-                        :class="currentView === 'table' ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-soft' : 'text-zinc-500 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+                        :class="currentView === 'table' ? 'bg-stone-50 dark:bg-slate-800 text-teal-700 dark:text-teal-300 shadow-soft' : 'text-slate-500 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
                         class="relative flex items-center px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-300 group">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18m-9 8h9"></path>
@@ -50,7 +50,7 @@
                         Table
                     </button>
                     <button @click="switchView('timeline')"
-                        :class="currentView === 'timeline' ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-soft' : 'text-zinc-500 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+                        :class="currentView === 'timeline' ? 'bg-stone-50 dark:bg-slate-800 text-teal-700 dark:text-teal-300 shadow-soft' : 'text-slate-500 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
                         class="relative flex items-center px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-300 group ml-1">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -59,7 +59,7 @@
                     </button>
                     @if(config('spatie-activitylog-ui.features.analytics', true))
                         <button @click="switchView('analytics')"
-                            :class="currentView === 'analytics' ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-soft' : 'text-zinc-500 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+                            :class="currentView === 'analytics' ? 'bg-stone-50 dark:bg-slate-800 text-teal-700 dark:text-teal-300 shadow-soft' : 'text-slate-500 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
                             class="relative flex items-center px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-300 group ml-1">
                             <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -88,19 +88,19 @@
             <main class="w-full lg:flex-1 lg:min-w-0" :class="{ 'lg:ml-0': currentView === 'analytics' }">
                 <!-- Advanced Loading Placeholder (Skeleton-like) -->
                 <div x-show="loading" class="space-y-4 py-4">
-                    <div class="h-10 bg-zinc-200 dark:bg-zinc-800 rounded-xl w-full animate-pulse"></div>
+                    <div class="h-10 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800"></div>
                     <div class="grid grid-cols-4 gap-4">
-                        <div class="h-32 bg-zinc-100 dark:bg-zinc-900 rounded-xl animate-pulse"></div>
-                        <div class="h-32 bg-zinc-100 dark:bg-zinc-900 rounded-xl animate-pulse"></div>
-                        <div class="h-32 bg-zinc-100 dark:bg-zinc-900 rounded-xl animate-pulse"></div>
-                        <div class="h-32 bg-zinc-100 dark:bg-zinc-900 rounded-xl animate-pulse"></div>
+                        <div class="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-slate-900"></div>
+                        <div class="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-slate-900"></div>
+                        <div class="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-slate-900"></div>
+                        <div class="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-slate-900"></div>
                     </div>
-                    <div class="h-64 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
+                    <div class="flex h-64 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-stone-50 dark:border-slate-800 dark:bg-slate-900/50">
                         <div class="flex flex-col items-center">
-                            <svg class="animate-spin h-8 w-8 text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="mb-3 h-8 w-8 animate-spin text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                             </svg>
-                            <span class="text-sm font-medium text-zinc-500">Syncing database activities...</span>
+                            <span class="text-sm font-medium text-slate-500">Syncing database activities...</span>
                         </div>
                     </div>
                 </div>
@@ -432,7 +432,7 @@
             // Reload analytics with current filters
             reloadAnalytics() {
                 // Find the analytics component and reload it
-                const analyticsComponent = document.querySelector('[x-data*="analyticsDashboard"]');
+                const analyticsComponent = document.querySelector('[x-data*="analyticsData"]');
                 if (analyticsComponent && analyticsComponent._x_dataStack) {
                     const component = analyticsComponent._x_dataStack[0];
                     if (component && component.loadAnalytics) {
