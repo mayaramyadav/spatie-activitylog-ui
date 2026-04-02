@@ -1,6 +1,6 @@
 <!-- Save View Modal -->
 <div x-data="{ open: false, viewName: '', filters: {} }"
-     @show-save-view-modal.window="filters = $event.detail; open = true"
+     x-on:show-save-view-modal.window="filters = $event.detail; open = true"
      @keydown.escape.window="open = false"
      x-show="open"
      x-cloak

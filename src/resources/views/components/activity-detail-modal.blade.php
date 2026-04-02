@@ -1,5 +1,5 @@
 <div x-data="{ open: false, activity: null }"
-     @show-activity-detail.window="activity = $event.detail; open = true"
+     x-on:show-activity-detail.window="activity = $event.detail; open = true"
      x-show="open"
      x-cloak
      class="fixed inset-0 z-[60] overflow-y-auto"

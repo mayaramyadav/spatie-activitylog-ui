@@ -8,7 +8,7 @@
 
         }
      }"
-     @show-export-modal.window="open = true; currentFilters = $event.detail?.filters || {}"
+     x-on:show-export-modal.window="open = true; currentFilters = $event.detail?.filters || {}"
      @keydown.escape.window="open = false"
      x-show="open"
      x-cloak

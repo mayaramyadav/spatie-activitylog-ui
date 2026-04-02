@@ -803,42 +803,21 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
-                                            <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
-                                        </linearGradient>
-                                    </defs>
-
-                                    <!-- Icon container -->
-                                    <rect x="2" y="4" width="32" height="32" rx="8" fill="url(#logoGradient)"/>
-
-                                    <!-- Activity log icon -->
-                                    <g transform="translate(8, 10)">
-                                        <!-- Document base -->
-                                        <path d="M4 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V6.414A2 2 0 0017.414 5L15 2.586A2 2 0 0013.586 2H4z"
-                                              fill="white" fill-opacity="0.9"/>
-
-                                        <!-- Activity lines -->
-                                        <circle cx="6" cy="8" r="1.5" fill="white"/>
-                                        <line x1="9" y1="8" x2="14" y2="8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-
-                                        <circle cx="6" cy="12" r="1.5" fill="white"/>
-                                        <line x1="9" y1="12" x2="13" y2="12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-
-                                        <circle cx="6" cy="16" r="1.5" fill="white"/>
-                                        <line x1="9" y1="16" x2="12" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-                                    </g>
-
-                                    <!-- Text that adapts to dark mode -->
-                                    <text x="42" y="16" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600"
-                                          class="fill-gray-800 dark:fill-gray-100">
-                                        ActivityLog
-                                    </text>
-                                    <text x="42" y="28" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="500"
-                                          class="fill-gray-500 dark:fill-gray-300">
-                                        UI
-                                    </text>
+                        <a href="{{ route('spatie-activitylog-ui.dashboard') }}" class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-soft">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9m-7-4h2m-2 0v2m0-2L9 8m5-3l3 3"></path>
                                 </svg>
-                            @endif
-                        </div>
+                            </div>
+                            <div class="leading-tight">
+                                <div class="text-sm font-black uppercase tracking-[0.18em] text-zinc-900 dark:text-white">
+                                    {{ config('spatie-activitylog-ui.ui.brand', 'ActivityLog UI') }}
+                                </div>
+                                <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">
+                                    Audit Dashboard
+                                </div>
+                            </div>
+                        </a>
 
                         <!-- Navigation Links -->
                         <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
