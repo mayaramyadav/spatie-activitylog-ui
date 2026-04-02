@@ -2,9 +2,9 @@
 
 # ✨ Spatie Activitylog UI
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mayaramyadav/spatie-activitylog-ui.svg?style=flat-square&color=blue)](https://packagist.org/packages/mayaramyadav/spatie-activitylog-ui)
-[![Total Downloads](https://img.shields.io/packagist/dt/mayaramyadav/spatie-activitylog-ui.svg?style=flat-square&color=blue)](https://packagist.org/packages/mayaramyadav/spatie-activitylog-ui)
-[![License](https://img.shields.io/github/license/mayaramyadav/spatie-activitylog-ui?style=flat-square)](LICENSE)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/mayaram/spatie-activitylog-ui.svg?style=flat-square&color=blue)](https://packagist.org/packages/mayaram/spatie-activitylog-ui)
+[![Total Downloads](https://img.shields.io/packagist/dt/mayaram/spatie-activitylog-ui.svg?style=flat-square&color=blue)](https://packagist.org/packages/mayaram/spatie-activitylog-ui)
+[![License](https://img.shields.io/github/license/mayaram/spatie-activitylog-ui?style=flat-square)](LICENSE)
 
 **A beautiful, modern, and lightning-fast user interface for [Spatie's Laravel Activitylog](https://github.com/spatie/laravel-activitylog).**
 
@@ -48,20 +48,20 @@ composer require maatwebsite/excel barryvdh/laravel-dompdf
 1. **Install the package via Composer:**
 
    ```bash
-   composer require mayaramyadav/spatie-activitylog-ui
+   composer require mayaram/spatie-activitylog-ui
    ```
 
 2. **Publish Configuration:** (Optional but recommended)
 
    ```bash
-   php artisan vendor:publish --provider="MayaramYadav\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-config"
+   php artisan vendor:publish --provider="Mayaram\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-config"
    ```
 
 3. **Publish Assets & Views:** (Optional if you wish to override styling)
 
    ```bash
-   php artisan vendor:publish --provider="MayaramYadav\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-assets"
-   php artisan vendor:publish --provider="MayaramYadav\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-views"
+   php artisan vendor:publish --provider="Mayaram\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-assets"
+   php artisan vendor:publish --provider="Mayaram\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-views"
    ```
 
 4. **Verify Database Configuration:**
@@ -76,30 +76,33 @@ You are now ready to go! 🎉 Visit **`/spatie-activitylog-ui`** in your browser
 
 ## ⚙️ Configuration
 
-Your `config/spatie-activitylog-ui.php` file dictates the entire appearance and permissions of the package. 
+Your `config/spatie-activitylog-ui.php` file controls routing, access rules, UI defaults, exports, and analytics behavior.
 
 ### Core Settings
 ```php
 'route' => [
     'prefix' => 'spatie-activitylog-ui', // The root URL of the UI
-    'middleware' => ['web', 'auth'],     // Who can access the base route
+    'name' => 'spatie-activitylog-ui.',
+    'middleware' => null, // Auto-detected from authorization settings, or set explicitly
 ],
 ```
 
 ### Authorization (Gates & Access Control)
-By default, the package is locked down out of the box.
+By default, the UI is publicly reachable through the `web` middleware and the package gate allows authenticated users when authorization is enabled. Turn authorization on to require login and package-level access checks.
 
 ```php
 'authorization' => [
     'enabled' => true,
-    'gate'    => 'viewActivityLogUi', // Intercept via app/Providers/AuthServiceProvider.php
+    'gate' => 'viewActivityLogUi',
 ],
 
 'access' => [
-    'allowed_users' => ['admin@example.com'], // Or allow specific emails natively
-    'allowed_roles' => ['super-admin'],       // Or specific Spatie Roles
+    'allowed_users' => ['admin@example.com'],
+    'allowed_roles' => ['super-admin'],
 ],
 ```
+
+If `authorization.enabled` is `false`, package routes use only the `web` middleware unless you override `route.middleware` manually.
 
 ## 💡 Analytics & Caching
 
@@ -111,7 +114,7 @@ The dashboard relies on caching to prevent heavy queries from lagging your datab
 ],
 
 'performance' => [
-    'cache_prefix' => 'spatie_al_ui', 
+    'cache_prefix' => 'activitylog_ui',
     'eager_load_relations' => ['causer', 'subject'], // Optimize N+1 issues
 ],
 ```
@@ -144,6 +147,16 @@ If your database contains millions of rows, attempting to export them via HTTP w
 
 We welcome your PRs and feature requests!
 Please open an issue to discuss major changes before making a pull request.
+
+## ✅ Testing
+
+The package uses PHPUnit with Orchestra Testbench.
+
+```bash
+composer test
+```
+
+The current test suite covers package bootstrapping, route registration, and access gate behavior.
 
 ## 📝 License
 

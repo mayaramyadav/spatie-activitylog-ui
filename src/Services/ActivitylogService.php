@@ -1,12 +1,12 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi\Services;
+namespace Mayaram\SpatieActivitylogUi\Services;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use MayaramYadav\SpatieActivitylogUi\Models\Activity;
+use Mayaram\SpatieActivitylogUi\Models\Activity;
 
 class ActivitylogService
 {

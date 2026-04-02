@@ -1,6 +1,6 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi\Models;
+namespace Mayaram\SpatieActivitylogUi\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;

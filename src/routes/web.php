@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use MayaramYadav\SpatieActivitylogUi\Http\Controllers\ActivityLogController;
-use MayaramYadav\SpatieActivitylogUi\Http\Controllers\ExportController;
+use Mayaram\SpatieActivitylogUi\Http\Controllers\ActivityLogController;
+use Mayaram\SpatieActivitylogUi\Http\Controllers\ExportController;
 
 $config = config('spatie-activitylog-ui.route', []);
 $prefix = $config['prefix'] ?? 'spatie-activitylog-ui';
@@ -12,7 +12,7 @@ $name = $config['name'] ?? 'spatie-activitylog-ui.';
 $middleware = ['web'];
 if (config('spatie-activitylog-ui.authorization.enabled', false)) {
     $middleware[] = 'auth';
-    $middleware[] = \MayaramYadav\SpatieActivitylogUi\Http\Middleware\ActivityLogAccessMiddleware::class;
+    $middleware[] = \Mayaram\SpatieActivitylogUi\Http\Middleware\ActivityLogAccessMiddleware::class;
 }
 
 // Allow custom middleware override if provided

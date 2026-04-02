@@ -1,6 +1,6 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi\Http\Controllers;
+namespace Mayaram\SpatieActivitylogUi\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -10,7 +10,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
-use MayaramYadav\SpatieActivitylogUi\Services\ExportService;
+use Mayaram\SpatieActivitylogUi\Services\ExportService;
 
 class ExportController extends Controller
 {

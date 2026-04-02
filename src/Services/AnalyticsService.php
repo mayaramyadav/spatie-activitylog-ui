@@ -1,11 +1,11 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi\Services;
+namespace Mayaram\SpatieActivitylogUi\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use MayaramYadav\SpatieActivitylogUi\Models\Activity;
+use Mayaram\SpatieActivitylogUi\Models\Activity;
 
 class AnalyticsService
 {

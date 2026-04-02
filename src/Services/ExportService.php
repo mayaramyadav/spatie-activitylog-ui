@@ -1,6 +1,6 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi\Services;
+namespace Mayaram\SpatieActivitylogUi\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\App;
 use Maatwebsite\Excel\Facades\Excel;
-use MayaramYadav\SpatieActivitylogUi\Models\Activity;
-use MayaramYadav\SpatieActivitylogUi\Exports\ActivitiesExport;
+use Mayaram\SpatieActivitylogUi\Models\Activity;
+use Mayaram\SpatieActivitylogUi\Exports\ActivitiesExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ExportService
@@ -178,7 +178,7 @@ class ExportService
                 'total_records' => $activities->count(),
                 'filters_applied' => $options['applied_filters'] ?? [],
                 'export_options' => $options,
-                'version' => \MayaramYadav\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider::VERSION,
+                'version' => \Mayaram\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider::VERSION,
             ],
             'activities' => $activities->map(function ($activity) {
                 return [
@@ -417,7 +417,7 @@ class ExportService
             cache()->put("export_job_{$jobId}", $initialStatus, now()->addHours(24));
 
             // Dispatch the job
-            $job = new \MayaramYadav\SpatieActivitylogUi\Jobs\ExportActivitiesJob($jobId, $filters, $format, $options, $userId);
+            $job = new \Mayaram\SpatieActivitylogUi\Jobs\ExportActivitiesJob($jobId, $filters, $format, $options, $userId);
             dispatch($job);
 
             \Log::info('Export job queued successfully', [

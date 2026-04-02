@@ -1,5 +1,5 @@
 {
-    "name": "mayaramyadav/spatie-activitylog-ui",
+    "name": "mayaram/spatie-activitylog-ui",
     "description": "A beautiful, modern UI for Spatie's Activity Log with advanced filtering, analytics, and real-time features.",
     "keywords": [
         "spatie",
@@ -24,7 +24,7 @@
         "logging",
         "monitoring"
     ],
-    "homepage": "https://github.com/mayaramyadav/spatie-activitylog-ui",
+    "homepage": "https://github.com/mayaram/spatie-activitylog-ui",
     "license": "MIT",
     "authors": [
         {
@@ -48,12 +48,12 @@
     },
     "autoload": {
         "psr-4": {
-            "MayaramYadav\\SpatieActivitylogUi\\": "src/"
+            "Mayaram\\SpatieActivitylogUi\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MayaramYadav\\SpatieActivitylogUi\\Tests\\": "tests/"
+            "Mayaram\\SpatieActivitylogUi\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -66,7 +66,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "MayaramYadav\\SpatieActivitylogUi\\SpatieActivitylogUiServiceProvider"
+                "Mayaram\\SpatieActivitylogUi\\SpatieActivitylogUiServiceProvider"
             ]
         }
     },

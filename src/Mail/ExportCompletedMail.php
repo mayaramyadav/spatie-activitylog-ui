@@ -1,6 +1,6 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi\Mail;
+namespace Mayaram\SpatieActivitylogUi\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;

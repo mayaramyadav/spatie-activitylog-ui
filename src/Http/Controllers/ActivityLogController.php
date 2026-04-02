@@ -1,6 +1,6 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi\Http\Controllers;
+namespace Mayaram\SpatieActivitylogUi\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Illuminate\Routing\Controller;
-use MayaramYadav\SpatieActivitylogUi\Services\ActivitylogService;
-use MayaramYadav\SpatieActivitylogUi\Services\AnalyticsService;
+use Mayaram\SpatieActivitylogUi\Services\ActivitylogService;
+use Mayaram\SpatieActivitylogUi\Services\AnalyticsService;
 
 class ActivityLogController extends Controller
 {

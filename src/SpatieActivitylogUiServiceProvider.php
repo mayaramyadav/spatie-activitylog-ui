@@ -1,6 +1,6 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi;
+namespace Mayaram\SpatieActivitylogUi;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -23,9 +23,9 @@ class SpatieActivitylogUiServiceProvider extends ServiceProvider
         );
 
         // Register services
-        $this->app->singleton(\MayaramYadav\SpatieActivitylogUi\Services\ActivitylogService::class);
-        $this->app->singleton(\MayaramYadav\SpatieActivitylogUi\Services\AnalyticsService::class);
-        $this->app->singleton(\MayaramYadav\SpatieActivitylogUi\Services\ExportService::class);
+        $this->app->singleton(\Mayaram\SpatieActivitylogUi\Services\ActivitylogService::class);
+        $this->app->singleton(\Mayaram\SpatieActivitylogUi\Services\AnalyticsService::class);
+        $this->app->singleton(\Mayaram\SpatieActivitylogUi\Services\ExportService::class);
     }
 
     /**
@@ -94,7 +94,7 @@ class SpatieActivitylogUiServiceProvider extends ServiceProvider
     protected function registerMiddleware(): void
     {
         $router = $this->app['router'];
-        $router->aliasMiddleware('activitylog-access', \MayaramYadav\SpatieActivitylogUi\Http\Middleware\ActivityLogAccessMiddleware::class);
+        $router->aliasMiddleware('activitylog-access', \Mayaram\SpatieActivitylogUi\Http\Middleware\ActivityLogAccessMiddleware::class);
     }
 
     /**
@@ -105,7 +105,7 @@ class SpatieActivitylogUiServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             // Register commands here if any
             // $this->commands([
-            //     \MayaramYadav\SpatieActivitylogUi\Console\Commands\InstallCommand::class,
+            //     \Mayaram\SpatieActivitylogUi\Console\Commands\InstallCommand::class,
             // ]);
         }
     }

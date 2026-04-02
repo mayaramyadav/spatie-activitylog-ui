@@ -1,6 +1,6 @@
 <?php
 
-namespace MayaramYadav\SpatieActivitylogUi\Http\Middleware;
+namespace Mayaram\SpatieActivitylogUi\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
