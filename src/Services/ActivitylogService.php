@@ -148,7 +148,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.causers';
 
-        return Cache::remember($cacheKey, 3600, function () {
+        $cached = Cache::remember($cacheKey, 3600, function () {
             return Activity::select('causer_type', 'causer_id')
                 ->whereNotNull('causer_type')
                 ->whereNotNull('causer_id')
@@ -167,8 +167,17 @@ class ActivitylogService
                     ];
                 })
                 ->unique('id')
-                ->values();
+                ->values()
+                ->all();
         });
+
+        if (! is_array($cached)) {
+            Cache::forget($cacheKey);
+
+            return $this->getAvailableCausers();
+        }
+
+        return collect($cached);
     }
 
     /**
@@ -178,7 +187,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.subject_types';
 
-        return Cache::remember($cacheKey, 3600, function () {
+        $cached = Cache::remember($cacheKey, 3600, function () {
             return Activity::select('subject_type')
                 ->whereNotNull('subject_type')
                 ->distinct()
@@ -190,8 +199,17 @@ class ActivitylogService
                         'full_name' => $type,
                     ];
                 })
-                ->values();
+                ->values()
+                ->all();
         });
+
+        if (! is_array($cached)) {
+            Cache::forget($cacheKey);
+
+            return $this->getAvailableSubjectTypes();
+        }
+
+        return collect($cached);
     }
 
     /**
@@ -201,7 +219,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.event_types';
 
-        return Cache::remember($cacheKey, 3600, function () {
+        $cached = Cache::remember($cacheKey, 3600, function () {
             return Activity::select('event')
                 ->whereNotNull('event')
                 ->distinct()
@@ -212,8 +230,17 @@ class ActivitylogService
                         'label' => ucfirst($event),
                     ];
                 })
-                ->values();
+                ->values()
+                ->all();
         });
+
+        if (! is_array($cached)) {
+            Cache::forget($cacheKey);
+
+            return $this->getAvailableEventTypes();
+        }
+
+        return collect($cached);
     }
 
     /**
@@ -223,7 +250,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.event_types_with_styling';
 
-        return Cache::remember($cacheKey, 3600, function () {
+        $cached = Cache::remember($cacheKey, 3600, function () {
             $eventTypes = Activity::select('event')
                 ->whereNotNull('event')
                 ->distinct()
@@ -242,8 +269,16 @@ class ActivitylogService
                     'badge_classes' => $styling['badge_classes'],
                     'timeline_classes' => $styling['timeline_classes'],
                 ];
-            });
+            })->all();
         });
+
+        if (! is_array($cached)) {
+            Cache::forget($cacheKey);
+
+            return $this->getEventTypesWithStyling();
+        }
+
+        return collect($cached);
     }
 
     /**

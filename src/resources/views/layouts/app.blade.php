@@ -23,21 +23,40 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        sans: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        gray: {
-                            50: '#f9fafb',
-                            100: '#f3f4f6',
-                            200: '#e5e7eb',
-                            300: '#d1d5db',
-                            400: '#9ca3af',
-                            500: '#6b7280',
-                            600: '#4b5563',
-                            700: '#374151',
-                            800: '#1f2937',
-                            900: '#111827',
+                        primary: {
+                            50: '#f5f7ff',
+                            100: '#ebf0fe',
+                            200: '#dee5fd',
+                            300: '#c4d1fb',
+                            400: '#9fb1f7',
+                            500: '#758bef',
+                            600: '#5a6ee5',
+                            700: '#4a59d4',
+                            800: '#3e49ad',
+                            900: '#363f89',
+                            950: '#20254f',
+                        },
+                        zinc: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            300: '#d4d4d8',
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b',
+                            950: '#09090b',
                         }
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
                     }
                 }
             }
@@ -55,44 +74,35 @@
     <style>
         [x-cloak] { display: none !important; }
 
-        /* Custom scrollbar */
+        /* Custom scrollbar - Modern & Minimal */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
+            width: 5px;
+            height: 5px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f3f4f6;
+            background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 2px;
+            @apply bg-zinc-200 dark:bg-zinc-700 rounded-full;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
+            @apply bg-zinc-300 dark:bg-zinc-600;
         }
 
-        /* Loading animation */
-        .loading-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        /* Glassmorphism utility */
+        .glass {
+            @apply bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-white/20 dark:border-zinc-800/50;
         }
 
-        /* Activity status colors */
-        .status-created { @apply bg-green-100 text-green-800; }
-        .status-updated { @apply bg-blue-100 text-blue-800; }
-        .status-deleted { @apply bg-red-100 text-red-800; }
-        .status-restored { @apply bg-yellow-100 text-yellow-800; }
-        .status-custom { @apply bg-purple-100 text-purple-800; }
-
-        .dark .custom-scrollbar::-webkit-scrollbar-track {
-            background: #374151;
+        /* Activity status colors - More vibrant & modern */
+        .status-badge {
+            @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase;
         }
-
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #6b7280;
-        }
-
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
+        .status-created { @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800; }
+        .status-updated { @apply bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800; }
+        .status-deleted { @apply bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800; }
+        .status-restored { @apply bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800; }
+        .status-custom { @apply bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-400 border border-violet-200 dark:border-violet-800; }
     </style>
 
     <!-- Global Alpine.js Functions -->
@@ -787,23 +797,12 @@
       x-data
       x-init="$store.darkMode.init()"
       :class="{ 'dark': $store.darkMode.on }">
-    <div class="min-h-full bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-full bg-zinc-50 dark:bg-zinc-950 transition-colors duration-500">
         <!-- Navigation Header -->
-        <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <nav class="sticky top-0 z-40 glass border-b shadow-soft">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
-                        <!-- Logo -->
-                        <div class="flex-shrink-0 flex items-center">
-                            @if(config('spatie-activitylog-ui.ui.logo'))
-                                <img class="h-8 w-auto" src="{{ config('spatie-activitylog-ui.ui.logo') }}" alt="{{ config('spatie-activitylog-ui.ui.brand') }}">
-                            @else
-                                <!-- Inline SVG Logo that responds to dark mode -->
-                                <svg class="h-8 w-auto" width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Background gradient -->
-                                    <defs>
-                                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
                                             <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
                                         </linearGradient>
                                     </defs>

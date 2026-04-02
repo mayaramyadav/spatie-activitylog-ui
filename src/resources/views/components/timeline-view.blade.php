@@ -1,240 +1,165 @@
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+<div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-soft p-6 border border-zinc-200 dark:border-zinc-800 transition-all duration-300">
     <!-- Timeline Header -->
-    <div class="mb-6">
-        <div class="flex items-center justify-between">
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Activity Timeline</h3>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    <span x-text="totalActivities"></span> activities in chronological order
+                <h3 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">Activity Feed</h3>
+                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-500 font-medium">
+                    <span x-text="totalActivities" class="text-indigo-600 dark:text-indigo-400"></span> events in chronological order
                 </p>
-                <!-- Helpful context about timeline behavior -->
-                <div x-show="activities.length > 0 && activities.length < totalActivities" class="mt-2">
-                    <div class="inline-flex items-center px-2 py-1 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-xs">
-                        <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Timeline shows activities from newest first - scroll down and click "Load More" for older activities
+                
+                <div x-show="activities.length > 0 && activities.length < totalActivities" x-cloak class="mt-3">
+                    <div class="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                        <svg class="w-3.5 h-3.5 mr-1.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Showing recent first • Scroll for history
                     </div>
                 </div>
-                    </div>
+            </div>
 
             <!-- Initial Load Size Selector -->
-                                <div class="flex items-center space-x-2">
-                <label for="timelinePerPage" class="text-sm text-gray-700 dark:text-gray-300 font-medium">Initial load:</label>
+            <div class="flex items-center space-x-3 bg-zinc-50 dark:bg-zinc-800/50 p-1.5 pl-3 rounded-xl border border-zinc-100 dark:border-zinc-700 shadow-inner-soft">
+                <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none">Load</span>
                 <select id="timelinePerPage"
                         x-model="perPage"
                         @change="currentPage = 1; loadActivities(1)"
-                        class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm dark:shadow-gray-900/20">
+                        class="border-none bg-transparent py-0 pl-0 pr-8 text-sm font-bold text-zinc-900 dark:text-white focus:ring-0 cursor-pointer">
                     @foreach(config('spatie-activitylog-ui.ui.per_page_options', [10, 25, 50, 100]) as $option)
-                    <option value="{{ $option }}">{{ $option }} activities</option>
+                    <option value="{{ $option }}">{{ $option }}</option>
                     @endforeach
                 </select>
             </div>
         </div>
     </div>
 
-    <!-- Timeline -->
-    <div class="space-y-4">
-        <template x-for="(activity, index) in activities" :key="activity.id">
-            <div class="relative group">
-                <!-- Timeline line -->
-                <div x-show="index < activities.length - 1"
-                     class="absolute left-4 top-10 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700 -z-10"></div>
+    <!-- Timeline Feed -->
+    <div class="relative space-y-6">
+        <!-- Vertical Line -->
+        <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-zinc-100 dark:bg-zinc-800 -ml-px"></div>
 
-                <div class="flex items-start space-x-4">
-                    <!-- Enhanced timeline icon -->
-                    <div class="relative flex-shrink-0">
-                        <div class="h-8 w-8 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-gray-800 shadow-sm"
-                             :class="window.ActivityTypeStyler?.getTimelineClasses(activity.event) || 'bg-gradient-to-br from-gray-500 to-gray-600 dark:from-gray-400 dark:to-gray-500'">
-                            <!-- Dynamic SVG icon -->
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="window.ActivityTypeStyler?.getIcon(activity.event) || 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'"></path>
-                            </svg>
+        <template x-for="(activity, index) in activities" :key="activity.id">
+            <div class="relative pl-10 group">
+                <!-- Marker -->
+                <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-white dark:bg-zinc-900 border-2 border-zinc-100 dark:border-zinc-800 flex items-center justify-center z-10 group-hover:border-indigo-500 dark:group-hover:border-indigo-400 transition-colors duration-300">
+                    <div class="w-2 h-2 rounded-full" 
+                         :class="`bg-${window.ActivityTypeStyler?.getColor(activity.event) || 'gray'}-500 group-hover:scale-125 transition-transform`"></div>
+                </div>
+
+                <!-- Content Card -->
+                <div class="bg-white dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-4 hover:border-zinc-200 dark:hover:border-zinc-700 hover:shadow-soft transition-all duration-300">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div class="flex items-center flex-wrap gap-2">
+                            <span class="status-badge" :class="window.ActivityTypeStyler?.getBadgeClasses(activity.event) || 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 border-zinc-200'">
+                                <span x-text="activity.event || 'system'"></span>
+                            </span>
+                            <span class="text-sm font-bold text-zinc-900 dark:text-zinc-100" x-text="activity.subject_type.split('\\').pop()"></span>
+                            <span class="text-[10px] font-mono text-zinc-400 dark:text-zinc-600">#<span x-text="activity.subject_id"></span></span>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3 shrink-0">
+                            <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800 px-2 py-1 rounded-lg"
+                                  x-text="new Date(activity.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })"></span>
+                            
+                            <button @click="showActivityDetail(activity)" 
+                                    class="p-2 text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Enhanced timeline content -->
-                    <div class="min-w-0 flex-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-gray-900/20 transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600">
-                        <!-- Enhanced header with better spacing and contrast -->
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-3 min-w-0 flex-1">
-                                <!-- Enhanced event badge -->
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold flex-shrink-0 border"
-                                      :class="window.ActivityTypeStyler?.getBadgeClasses(activity.event) || 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700'">
-                                    <span x-text="activity.event ? activity.event.toUpperCase() : 'UNKNOWN'"></span>
-                                </span>
-
-                                <!-- Enhanced subject info -->
-                                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                                    <span x-text="activity.subject_type"></span>
-                                    <span class="text-gray-500 dark:text-gray-400 font-normal">#<span x-text="activity.subject_id"></span></span>
-                                    </span>
-
-                                <!-- Enhanced user info with better styling -->
-                                <span x-show="activity.causer" class="text-xs text-gray-600 dark:text-gray-400 flex-shrink-0 bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md">
-                                    by <span class="font-medium text-gray-700 dark:text-gray-300" x-text="activity.causer?.name || 'Unknown'"></span>
-                                </span>
-                                <span x-show="!activity.causer" class="text-xs text-gray-600 dark:text-gray-400 flex-shrink-0 bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md font-medium">
-                                    by System
-                                </span>
-                            </div>
-
-                            <!-- Enhanced time and actions section -->
-                            <div class="flex items-center space-x-3 flex-shrink-0">
-                                <time class="text-xs text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md"
-                                      x-text="new Date(activity.created_at).toLocaleString('en-US', {
-                                          month: 'short',
-                                          day: 'numeric',
-                                          hour: '2-digit',
-                                          minute: '2-digit'
-                                      })"></time>
-                                <button @click="showActivityDetail(activity)"
-                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-150">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
-                                </button>
-                            </div>
+                    <div class="flex items-start gap-3">
+                        <div class="h-10 w-10 shrink-0 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center overflow-hidden">
+                            <span x-show="activity.causer" class="text-xs font-black text-zinc-500" x-text="activity.causer?.name?.charAt(0) || '?'"></span>
+                            <svg x-show="!activity.causer" class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
                         </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100" x-text="activity.description"></p>
+                            <p class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">
+                                <span x-show="activity.causer" x-text="activity.causer?.name || 'Unknown User'"></span>
+                                <span x-show="!activity.causer">System Automated</span>
+                            </p>
+                        </div>
+                    </div>
 
-                        <!-- Enhanced description -->
-                        <div class="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed" x-text="activity.description"></div>
+                    <!-- Compact Attribute Preview -->
+                    <div x-show="activity.attribute_changes && Object.keys(activity.attribute_changes).length > 0"
+                         x-data="{ expanded: false }"
+                         class="mt-4 pt-4 border-t border-zinc-50 dark:border-zinc-800/50">
+                        <button @click="expanded = !expanded"
+                                class="flex items-center text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">
+                            <svg :class="expanded ? 'rotate-90' : ''" class="w-3 h-3 mr-1 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
+                            <span x-text="expanded ? 'Hide' : 'Visualise'"></span> Changes
+                        </button>
 
-                        <!-- Enhanced properties toggle -->
-                        <div x-show="activity.attribute_changes && Object.keys(activity.attribute_changes).length > 0"
-                             x-data="{ expanded: false }"
-                             class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                            <button @click="expanded = !expanded"
-                                    class="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md transition-colors duration-150">
-                                <svg :class="expanded ? 'rotate-90' : ''"
-                                     class="w-3 h-3 mr-1 transform transition-transform duration-150"
-                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                                <span x-text="expanded ? 'Hide' : 'Show'"></span> Details
-                            </button>
-
-                            <div x-show="expanded"
-                                 x-collapse
-                                 class="mt-3 space-y-3">
-                                <template x-if="activity.attribute_changes.old">
-                                    <div>
-                                        <h5 class="text-xs font-semibold text-red-600 dark:text-red-400 mb-2 flex items-center">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                                        </svg>
-                                            Previous Values
-                                        </h5>
-                                        <pre class="text-xs bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-md text-red-800 dark:text-red-300 overflow-x-auto"
+                        <div x-show="expanded" x-collapse class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-if="activity.attribute_changes.old">
+                                <div class="space-y-2">
+                                    <h5 class="text-[9px] font-black uppercase tracking-[0.2em] text-red-500/70 dark:text-red-400/50 flex items-center">
+                                        <div class="w-1 h-1 bg-current rounded-full mr-2"></div> Previous
+                                    </h5>
+                                    <div class="bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl p-3">
+                                        <pre class="text-[10px] font-mono text-red-800 dark:text-red-300 leading-relaxed custom-scrollbar opacity-80" 
                                              x-text="JSON.stringify(activity.attribute_changes.old, null, 2)"></pre>
                                     </div>
-                                </template>
-
-                                <template x-if="activity.attribute_changes.attributes">
-                                    <div>
-                                        <h5 class="text-xs font-semibold text-green-600 dark:text-green-400 mb-2 flex items-center">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                        </svg>
-                                            New Values
-                                        </h5>
-                                        <pre class="text-xs bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 rounded-md text-green-800 dark:text-green-300 overflow-x-auto"
+                                </div>
+                            </template>
+                            
+                            <template x-if="activity.attribute_changes.attributes">
+                                <div class="space-y-2">
+                                    <h5 class="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500/70 dark:text-emerald-400/50 flex items-center">
+                                        <div class="w-1 h-1 bg-current rounded-full mr-2"></div> Updated
+                                    </h5>
+                                    <div class="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-xl p-3">
+                                        <pre class="text-[10px] font-mono text-emerald-800 dark:text-emerald-300 leading-relaxed custom-scrollbar opacity-80" 
                                              x-text="JSON.stringify(activity.attribute_changes.attributes, null, 2)"></pre>
                                     </div>
-                                </template>
-                            </div>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
             </div>
         </template>
-        </div>
-
-    <!-- Enhanced empty State -->
-    <div x-show="activities.length === 0" class="text-center py-16">
-        <div class="inline-flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gray-100 dark:bg-gray-700 rounded-full">
-            <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No activities found</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">No activities match your current filters. Try adjusting your search criteria or date range.</p>
     </div>
 
-    <!-- Enhanced load More section -->
-    <div x-show="currentPage < totalPages" class="mt-8 text-center">
-        <button @click="loadMoreActivities()"
-                :disabled="loading"
-                class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 shadow-sm text-base font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-gray-900/10">
-            <svg x-show="loading" class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <svg x-show="!loading" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            <span x-show="!loading">Load More Activities</span>
-            <span x-show="loading">Loading...</span>
+    <!-- Empty State -->
+    <div x-show="activities.length === 0" x-cloak class="text-center py-20">
+        <div class="inline-flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-zinc-100 dark:bg-zinc-800 rounded-3xl border border-zinc-100 dark:border-zinc-700">
+            <svg class="w-10 h-10 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h3 class="text-xl font-bold text-zinc-900 dark:text-white mb-2 tracking-tight">Timeline is empty</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto font-medium">No records match your criteria. Try adjusting your parameters.</p>
+    </div>
+
+    <!-- Load More -->
+    <div x-show="currentPage < totalPages" x-cloak class="mt-12 text-center">
+        <button @click="loadMoreActivities()" :disabled="loading"
+                class="inline-flex items-center px-8 py-3.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-black uppercase tracking-widest text-zinc-900 dark:text-white rounded-2xl shadow-soft hover:border-indigo-500 dark:hover:border-indigo-400 transition-all active:scale-95 disabled:opacity-50 group">
+            <template x-if="loading">
+                <svg class="animate-spin -ml-1 mr-3 h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </template>
+            <template x-if="!loading">
+                <svg class="w-4 h-4 mr-2 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+            </template>
+            <span x-text="loading ? 'Retrieving Records...' : 'Explore History'"></span>
         </button>
 
-        <!-- Enhanced progress indicator -->
-        <div class="mt-4">
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                Showing <span class="font-semibold text-gray-700 dark:text-gray-300" x-text="activities.length"></span> of <span class="font-semibold text-gray-700 dark:text-gray-300" x-text="totalActivities"></span> activities
-            </p>
-            <div class="w-full max-w-xs mx-auto bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 h-2 rounded-full transition-all duration-300 shadow-sm"
-                     :style="`width: ${totalActivities > 0 ? (activities.length / totalActivities) * 100 : 0}%`"></div>
+        <!-- Progress Indicator -->
+        <div class="mt-8 max-w-sm mx-auto">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Fetched <span class="text-zinc-900 dark:text-white" x-text="activities.length"></span> of <span x-text="totalActivities"></span></span>
+                <span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400" x-text="Math.round((activities.length / totalActivities) * 100) + '%'"></span>
+            </div>
+            <div class="h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full bg-indigo-600 dark:bg-indigo-500 transition-all duration-500" :style="`width: ${ (activities.length / totalActivities) * 100 }%`"></div>
             </div>
         </div>
     </div>
 
-    <!-- Enhanced all loaded message -->
-    <div x-show="activities.length > 0 && currentPage >= totalPages" class="mt-8 text-center">
-        <div class="inline-flex items-center px-4 py-3 rounded-lg bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300">
-            <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span class="text-sm font-semibold">All activities loaded</span>
+    <!-- All Caught Up -->
+    <div x-show="activities.length > 0 && currentPage >= totalPages" x-cloak class="mt-12 text-center">
+        <div class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span class="text-[11px] font-bold uppercase tracking-widest">History fully retrieved</span>
         </div>
-        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            <span class="font-medium text-gray-700 dark:text-gray-300" x-text="activities.length"></span> activities displayed in total
-        </p>
     </div>
 </div>
-
-<style>
-/* Enhanced timeline styles */
-.timeline-view {
-    /* Custom styles for timeline view */
-}
-
-/* Enhanced hover effects for timeline items */
-.timeline-view .group:hover .bg-white {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.dark .timeline-view .group:hover .bg-gray-800 {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-}
-
-/* Enhanced scrollbar for code blocks */
-.dark pre::-webkit-scrollbar {
-    height: 6px;
-}
-
-.dark pre::-webkit-scrollbar-track {
-    background: rgba(75, 85, 99, 0.3);
-    border-radius: 3px;
-}
-
-.dark pre::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.5);
-    border-radius: 3px;
-}
-
-.dark pre::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.7);
-}
-</style>
