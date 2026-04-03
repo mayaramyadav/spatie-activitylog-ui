@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
+    @php
+        $defaultLogoPath = public_path('vendor/spatie-activitylog-ui/images/logo.svg');
+        $defaultFaviconSvgPath = public_path('vendor/spatie-activitylog-ui/images/favicon.svg');
+        $defaultFaviconIcoPath = public_path('vendor/spatie-activitylog-ui/images/favicon.ico');
+
+        $defaultLogoUrl = asset('vendor/spatie-activitylog-ui/images/logo.svg')
+            . (file_exists($defaultLogoPath) ? '?v=' . md5_file($defaultLogoPath) : '');
+        $defaultFaviconSvgUrl = asset('vendor/spatie-activitylog-ui/images/favicon.svg')
+            . (file_exists($defaultFaviconSvgPath) ? '?v=' . md5_file($defaultFaviconSvgPath) : '');
+        $defaultFaviconIcoUrl = asset('vendor/spatie-activitylog-ui/images/favicon.ico')
+            . (file_exists($defaultFaviconIcoPath) ? '?v=' . md5_file($defaultFaviconIcoPath) : '');
+
+        $logoUrl = config('spatie-activitylog-ui.ui.logo') ?: $defaultLogoUrl;
+        $faviconUrl = config('spatie-activitylog-ui.ui.favicon');
+    @endphp
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -8,8 +23,14 @@
     <title>@yield('title') - {{ config('spatie-activitylog-ui.ui.brand', 'ActivityLog UI') }}</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('vendor/spatie-activitylog-ui/images/favicon.svg') }}">
-    <link rel="icon" type="image/x-icon" href="{{ asset('vendor/spatie-activitylog-ui/images/favicon.ico') }}">
+    @if($faviconUrl)
+        <link rel="icon" href="{{ $faviconUrl }}">
+        <link rel="shortcut icon" href="{{ $faviconUrl }}">
+    @else
+        <link rel="icon" type="image/svg+xml" href="{{ $defaultFaviconSvgUrl }}">
+        <link rel="icon" type="image/x-icon" href="{{ $defaultFaviconIcoUrl }}">
+        <link rel="shortcut icon" href="{{ $defaultFaviconIcoUrl }}">
+    @endif
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -1010,50 +1031,7 @@
                     <div class="flex items-center">
                         <!-- Logo -->
                         <div class="flex-shrink-0 flex items-center">
-                            @if(config('spatie-activitylog-ui.ui.logo'))
-                                <img class="h-8 w-auto" src="{{ config('spatie-activitylog-ui.ui.logo') }}" alt="{{ config('spatie-activitylog-ui.ui.brand') }}">
-                            @else
-                                <!-- Inline SVG Logo that responds to dark mode -->
-                                <svg class="h-8 w-auto" width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Background gradient -->
-                                    <defs>
-                                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-                                            <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
-                                        </linearGradient>
-                                    </defs>
-
-                                    <!-- Icon container -->
-                                    <rect x="2" y="4" width="32" height="32" rx="8" fill="url(#logoGradient)"/>
-
-                                    <!-- Activity log icon -->
-                                    <g transform="translate(8, 10)">
-                                        <!-- Document base -->
-                                        <path d="M4 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V6.414A2 2 0 0017.414 5L15 2.586A2 2 0 0013.586 2H4z"
-                                              fill="white" fill-opacity="0.9"/>
-
-                                        <!-- Activity lines -->
-                                        <circle cx="6" cy="8" r="1.5" fill="white"/>
-                                        <line x1="9" y1="8" x2="14" y2="8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-
-                                        <circle cx="6" cy="12" r="1.5" fill="white"/>
-                                        <line x1="9" y1="12" x2="13" y2="12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-
-                                        <circle cx="6" cy="16" r="1.5" fill="white"/>
-                                        <line x1="9" y1="16" x2="12" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-                                    </g>
-
-                                    <!-- Text that adapts to dark mode -->
-                                    <text x="42" y="16" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600"
-                                          class="fill-gray-800 dark:fill-gray-100">
-                                        ActivityLog
-                                    </text>
-                                    <text x="42" y="28" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="500"
-                                          class="fill-gray-500 dark:fill-gray-300">
-                                        UI
-                                    </text>
-                                </svg>
-                            @endif
+                            <img class="h-8 w-auto" src="{{ $logoUrl }}" alt="{{ config('spatie-activitylog-ui.ui.brand') }}">
                         </div>
 
                         <!-- Navigation Links -->

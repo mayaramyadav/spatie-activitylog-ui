@@ -81,6 +81,7 @@ return [
         'title' => 'Activity Log',
         'brand' => 'ActivityLog UI',
         'logo' => null,
+        'favicon' => null,
         'default_view' => 'table', // table, timeline
         'per_page_options' => [10, 25, 50, 100],
         'default_per_page' => 25,
