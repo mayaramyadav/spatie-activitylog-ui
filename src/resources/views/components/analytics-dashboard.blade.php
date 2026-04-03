@@ -1,5 +1,5 @@
 <!-- Analytics Dashboard Component -->
-<div x-data="analyticsData()"
+<div x-data="analyticsDashboard()"
      x-init="init()"
      class="space-y-6">
 
@@ -16,6 +16,14 @@
             <!-- Time Period Selector -->
             <div class="flex flex-col space-y-2">
                 <div class="flex flex-wrap gap-1 sm:gap-2">
+                    <button @click="selectedPeriod = 'all'; showCustomDateRange = false; loadAnalytics()"
+                            :class="{
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700': selectedPeriod === 'all',
+                                'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600': selectedPeriod !== 'all'
+                            }"
+                            class="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap">
+                        All Time
+                    </button>
                     <button @click="selectedPeriod = 'today'; loadAnalytics()"
                             :class="{
                                 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700': selectedPeriod === 'today',
@@ -98,7 +106,8 @@
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Activities</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.total || '0'"></p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">All time</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                       x-text="selectedPeriod === 'all' ? 'All time' : (selectedPeriod === 'custom' ? 'Custom range' : (selectedPeriod === 'today' ? 'Today' : `Last ${selectedPeriod} days`))"></p>
                 </div>
             </div>
         </div>
@@ -286,139 +295,6 @@
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('analyticsData', () => ({
-        stats: {},
-        eventTypes: [],
-        topUsers: [],
-        timeline: [],
-        popularModels: [],
-        activityTrends: {},
-        loading: true,
-        selectedPeriod: 'today',
-        customStartDate: '',
-        customEndDate: '',
-        chart: null,
-
-        init() {
-            this.loadAnalytics();
-        },
-
-        async loadAnalytics() {
-            try {
-                this.loading = true;
-                let url = '{{ route("spatie-activitylog-ui.api.analytics") }}';
-                let params = new URLSearchParams();
-
-                if (this.selectedPeriod === 'custom') {
-                    if (this.customStartDate) params.append('start_date', this.customStartDate);
-                    if (this.customEndDate) params.append('end_date', this.customEndDate);
-                } else if (this.selectedPeriod === 'today') {
-                    params.append('period', 'today');
-                } else {
-                    params.append('period', this.selectedPeriod);
-                }
-
-                const response = await fetch(`${url}?${params.toString()}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    this.stats = {
-                        total: data.data.total_activities,
-                        today: data.data.activities_today,
-                        activities_this_week: data.data.activities_this_week,
-                        activities_this_month: data.data.activities_this_month
-                    };
-
-                    this.eventTypes = data.data.event_types;
-                    this.topUsers = data.data.top_users;
-                    this.timeline = data.data.timeline;
-                    this.popularModels = data.data.popular_models;
-                    this.activityTrends = data.data.activity_trends;
-
-                    if (this.activityTrends && document.getElementById('activityTrendsChart')) {
-                        this.initActivityTrendsChart();
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading analytics:', error);
-                if (window.notify) {
-                    window.notify.error('Error', 'Failed to load analytics data');
-                }
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        initActivityTrendsChart() {
-            const canvas = document.getElementById('activityTrendsChart');
-            if (!canvas) return;
-
-            // Destroy existing chart if it exists
-            if (this.chart instanceof Chart) {
-                this.chart.destroy();
-            }
-
-            const ctx = canvas.getContext('2d');
-
-            this.chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: this.activityTrends.dates,
-                    datasets: this.activityTrends.datasets.map(dataset => ({
-                        label: dataset.label,
-                        data: dataset.data.map(d => d.count),
-                        borderColor: dataset.color,
-                        backgroundColor: `${dataset.color}20`,
-                        tension: 0.4,
-                        fill: true
-                    }))
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        },
-
-        // Cleanup method
-        destroy() {
-            if (this.chart instanceof Chart) {
-                this.chart.destroy();
-                this.chart = null;
-            }
-        }
-    }));
-});
-</script>
 
 <style>
 /* Enhanced analytics dashboard styling */

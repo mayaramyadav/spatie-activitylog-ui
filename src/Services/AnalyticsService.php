@@ -14,9 +14,17 @@ class AnalyticsService
      */
     public function getDashboardSummary(array $filters = []): array
     {
-        // Create cache key based on filters
+        // Include table state so analytics cache refreshes when new activity rows are added.
+        $activityState = Activity::query()
+            ->selectRaw('COUNT(*) as aggregate_count, MAX(id) as latest_id')
+            ->first();
+
         $filterHash = md5(serialize($filters));
-        $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.dashboard_summary.' . $filterHash;
+        $stateHash = md5(serialize([
+            'count' => (int) ($activityState?->aggregate_count ?? 0),
+            'latest_id' => (int) ($activityState?->latest_id ?? 0),
+        ]));
+        $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.dashboard_summary.' . $filterHash . '.' . $stateHash;
         $cacheDuration = config('spatie-activitylog-ui.analytics.cache_duration', 3600);
 
         return Cache::remember($cacheKey, $cacheDuration, function () use ($filters) {

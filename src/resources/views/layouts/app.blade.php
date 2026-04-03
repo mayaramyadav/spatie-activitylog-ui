@@ -507,9 +507,15 @@
                     eventTypes: [],
                     topUsers: [],
                     timeline: [],
+                    popularModels: [],
+                    activityTrends: {},
+                    chart: null,
 
                     // Period selection
-                    selectedPeriod: '7',
+                    selectedPeriod: 'all',
+                    customStartDate: '',
+                    customEndDate: '',
+                    showCustomDateRange: false,
 
                     // Filter state
                     currentFilters: {},
@@ -523,13 +529,16 @@
                         this.loadAnalytics();
                     },
 
-                    async loadAnalytics(filters = {}) {
+                    async loadAnalytics(filters = null) {
                         this.loading = true;
 
+                        if (filters !== null) {
+                            this.currentFilters = filters;
+                        }
+
                         // Update filter state
-                        this.currentFilters = filters;
-                        this.hasActiveFilters = Object.keys(filters).some(key => {
-                            const value = filters[key];
+                        this.hasActiveFilters = Object.keys(this.currentFilters).some(key => {
+                            const value = this.currentFilters[key];
                             return value !== '' && value !== null && value !== undefined &&
                                    (Array.isArray(value) ? value.length > 0 : true) &&
                                    !(key === 'date_preset' && value === 'all');
@@ -539,9 +548,25 @@
                             // Build URL with filters
                             const params = new URLSearchParams();
 
+                            if (this.selectedPeriod === 'custom') {
+                                if (this.customStartDate) {
+                                    params.append('start_date', this.customStartDate);
+                                }
+
+                                if (this.customEndDate) {
+                                    params.append('end_date', this.customEndDate);
+                                }
+                            } else if (this.selectedPeriod === 'all') {
+                                // Leave analytics unbounded so it matches table/timeline defaults.
+                            } else if (this.selectedPeriod === 'today') {
+                                params.append('period', 'today');
+                            } else {
+                                params.append('period', this.selectedPeriod);
+                            }
+
                             // Add filters to URL parameters
-                            Object.keys(filters).forEach(key => {
-                                const value = filters[key];
+                            Object.keys(this.currentFilters).forEach(key => {
+                                const value = this.currentFilters[key];
                                 if (value !== null && value !== '' && value !== undefined) {
                                     if (Array.isArray(value)) {
                                         value.forEach(item => params.append(`${key}[]`, item));
@@ -570,49 +595,104 @@
                                     total: '0',
                                     today: '0',
                                     active_users: '0',
-                                    this_week: '0'
+                                    activities_this_week: '0',
+                                    activities_this_month: '0',
                                 };
 
                                 this.eventTypes = data.event_types || [];
                                 this.topUsers = data.top_users || [];
                                 this.timeline = data.timeline || [];
+                                this.popularModels = data.popular_models || [];
+                                this.activityTrends = data.activity_trends || {};
+
+                                if (this.activityTrends?.dates?.length && this.activityTrends?.datasets?.length) {
+                                    this.initActivityTrendsChart();
+                                } else if (this.chart instanceof Chart) {
+                                    this.chart.destroy();
+                                    this.chart = null;
+                                }
                             } else {
                                 throw new Error('Failed to load analytics');
                             }
                         } catch (error) {
                             console.error('Error loading analytics:', error);
-                            // Fallback to mock data
                             this.stats = {
-                                total: '12,543',
-                                today: '127',
-                                active_users: '45',
-                                this_week: '1,234'
+                                total: '0',
+                                today: '0',
+                                active_users: '0',
+                                activities_this_week: '0',
+                                activities_this_month: '0'
                             };
 
-                            this.eventTypes = [
-                                { name: 'created', count: 150, percentage: 35 },
-                                { name: 'updated', count: 200, percentage: 47 },
-                                { name: 'deleted', count: 50, percentage: 12 },
-                                { name: 'restored', count: 25, percentage: 6 }
-                            ];
+                            this.eventTypes = [];
+                            this.topUsers = [];
+                            this.timeline = [];
+                            this.popularModels = [];
+                            this.activityTrends = {};
 
-                            this.topUsers = [
-                                { id: 1, name: 'John Doe', email: 'john@example.com', activity_count: 45 },
-                                { id: 2, name: 'Jane Smith', email: 'jane@example.com', activity_count: 38 },
-                                { id: 3, name: 'Bob Johnson', email: 'bob@example.com', activity_count: 29 }
-                            ];
+                            if (this.chart instanceof Chart) {
+                                this.chart.destroy();
+                                this.chart = null;
+                            }
 
-                            this.timeline = [
-                                { date: '2024-01-15', day_name: 'Monday', count: 85, percentage: 70 },
-                                { date: '2024-01-14', day_name: 'Sunday', count: 45, percentage: 37 },
-                                { date: '2024-01-13', day_name: 'Saturday', count: 120, percentage: 100 },
-                                { date: '2024-01-12', day_name: 'Friday', count: 95, percentage: 79 },
-                                { date: '2024-01-11', day_name: 'Thursday', count: 110, percentage: 92 },
-                                { date: '2024-01-10', day_name: 'Wednesday', count: 88, percentage: 73 },
-                                { date: '2024-01-09', day_name: 'Tuesday', count: 75, percentage: 63 }
-                            ];
+                            if (window.notify) {
+                                window.notify.error('Error', 'Failed to load analytics data');
+                            }
                         } finally {
                             this.loading = false;
+                        }
+                    },
+
+                    initActivityTrendsChart() {
+                        const canvas = document.getElementById('activityTrendsChart');
+                        if (!canvas || !this.activityTrends?.dates || !this.activityTrends?.datasets) {
+                            return;
+                        }
+
+                        if (this.chart instanceof Chart) {
+                            this.chart.destroy();
+                        }
+
+                        const ctx = canvas.getContext('2d');
+
+                        this.chart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: this.activityTrends.dates,
+                                datasets: this.activityTrends.datasets.map(dataset => ({
+                                    label: dataset.label,
+                                    data: (dataset.data || []).map(point => point.count),
+                                    borderColor: dataset.color,
+                                    backgroundColor: `${dataset.color}20`,
+                                    tension: 0.4,
+                                    fill: true
+                                }))
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                interaction: {
+                                    intersect: false,
+                                    mode: 'index'
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'top'
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    },
+
+                    destroy() {
+                        if (this.chart instanceof Chart) {
+                            this.chart.destroy();
+                            this.chart = null;
                         }
                     }
                 }

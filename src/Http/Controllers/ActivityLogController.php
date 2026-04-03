@@ -214,9 +214,11 @@ class ActivityLogController extends Controller
 
         // Keep existing behavior: if dates are not fully provided, derive from period.
         if (empty($filters['start_date']) || empty($filters['end_date'])) {
-            $period = $request->get('period', 'today');
+            $period = $request->get('period', 'all');
 
-            if ($period === 'today') {
+            if ($period === 'all') {
+                unset($filters['start_date'], $filters['end_date']);
+            } elseif ($period === 'today') {
                 $filters['start_date'] = now()->startOfDay()->toDateString();
                 $filters['end_date'] = now()->endOfDay()->toDateString();
             } else {
