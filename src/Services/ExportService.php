@@ -3,6 +3,7 @@
 namespace Mayaram\SpatieActivitylogUi\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
@@ -229,7 +230,7 @@ class ExportService
                     'changes' => $activity->hasPropertyChanges() ?
                         $activity->getChangesSummary() :
                         'No changes tracked',
-                    'attribute_changes' => json_encode($activity->properties),
+                    'attribute_changes' => json_encode($activity->attribute_changes),
                     default => $activity->{$column} ?? '',
                 };
             }
@@ -244,7 +245,7 @@ class ExportService
     protected function generateFilename(string $extension): string
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
-        $random = substr(md5(uniqid()), 0, 8);
+        $random = Str::lower(Str::random(8));
 
         return "activity_log_export_{$timestamp}_{$random}.{$extension}";
     }

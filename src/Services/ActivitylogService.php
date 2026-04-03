@@ -74,7 +74,9 @@ class ActivitylogService
 
         // Property filters
         if (!empty($filters['property_key'])) {
-            $query->whereJsonContains('properties', [$filters['property_key'] => null]);
+            $propertyKey = addcslashes($filters['property_key'], '%_');
+
+            $query->where('properties', 'like', '%"'.$propertyKey.'"%');
         }
 
         return $query;
@@ -148,7 +150,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.causers';
 
-        $cached = Cache::remember($cacheKey, 3600, function () {
+        return $this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
             return Activity::select('causer_type', 'causer_id')
                 ->whereNotNull('causer_type')
                 ->whereNotNull('causer_id')
@@ -167,17 +169,8 @@ class ActivitylogService
                     ];
                 })
                 ->unique('id')
-                ->values()
-                ->all();
-        });
-
-        if (! is_array($cached)) {
-            Cache::forget($cacheKey);
-
-            return $this->getAvailableCausers();
-        }
-
-        return collect($cached);
+                ->values();
+        }));
     }
 
     /**
@@ -187,7 +180,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.subject_types';
 
-        $cached = Cache::remember($cacheKey, 3600, function () {
+        return $this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
             return Activity::select('subject_type')
                 ->whereNotNull('subject_type')
                 ->distinct()
@@ -199,17 +192,8 @@ class ActivitylogService
                         'full_name' => $type,
                     ];
                 })
-                ->values()
-                ->all();
-        });
-
-        if (! is_array($cached)) {
-            Cache::forget($cacheKey);
-
-            return $this->getAvailableSubjectTypes();
-        }
-
-        return collect($cached);
+                ->values();
+        }));
     }
 
     /**
@@ -219,7 +203,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.event_types';
 
-        $cached = Cache::remember($cacheKey, 3600, function () {
+        return $this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
             return Activity::select('event')
                 ->whereNotNull('event')
                 ->distinct()
@@ -230,17 +214,8 @@ class ActivitylogService
                         'label' => ucfirst($event),
                     ];
                 })
-                ->values()
-                ->all();
-        });
-
-        if (! is_array($cached)) {
-            Cache::forget($cacheKey);
-
-            return $this->getAvailableEventTypes();
-        }
-
-        return collect($cached);
+                ->values();
+        }));
     }
 
     /**
@@ -250,7 +225,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.event_types_with_styling';
 
-        $cached = Cache::remember($cacheKey, 3600, function () {
+        return $this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
             $eventTypes = Activity::select('event')
                 ->whereNotNull('event')
                 ->distinct()
@@ -269,16 +244,16 @@ class ActivitylogService
                     'badge_classes' => $styling['badge_classes'],
                     'timeline_classes' => $styling['timeline_classes'],
                 ];
-            })->all();
-        });
+            });
+        }));
+    }
 
-        if (! is_array($cached)) {
-            Cache::forget($cacheKey);
-
-            return $this->getEventTypesWithStyling();
-        }
-
-        return collect($cached);
+    /**
+     * Cache stores may hydrate collections as plain arrays. Normalize them here.
+     */
+    protected function ensureCollection(mixed $value): Collection
+    {
+        return $value instanceof Collection ? $value : collect($value);
     }
 
     /**

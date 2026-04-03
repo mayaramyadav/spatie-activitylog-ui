@@ -1,163 +1,166 @@
-<div align="center">
+# Laravel Activity Log UI
 
-# ✨ Spatie Activitylog UI
+> Beautiful, modern UI for [Spatie's Activity Log](https://github.com/spatie/laravel-activitylog)
+>
+> **Important:** This package **assumes you already have Spatie's Activity Log installed and configured** in your Laravel application.  It does *not* replace the logging package—only provides a powerful UI for viewing and analyzing the stored activities.
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mayaram/spatie-activitylog-ui.svg?style=flat-square&color=blue)](https://packagist.org/packages/mayaram/spatie-activitylog-ui)
-[![Total Downloads](https://img.shields.io/packagist/dt/mayaram/spatie-activitylog-ui.svg?style=flat-square&color=blue)](https://packagist.org/packages/mayaram/spatie-activitylog-ui)
-[![License](https://img.shields.io/github/license/mayaram/spatie-activitylog-ui?style=flat-square)](LICENSE)
-
-**A beautiful, modern, and lightning-fast user interface for [Spatie's Laravel Activitylog](https://github.com/spatie/laravel-activitylog).**
-
-</div>
+![Activity Log UI Screenshot](laravel-spatie-activitylog-ui-screenshot.png)
 
 ---
 
-> [!NOTE]
-> This package provides an elegant dashboard and analysis interface. It operates securely on top of your existing `activity_log` table and assumes you already have Spatie's package installed and logging data.
+## 📖 Documentation
 
-<div align="center">
-  <img src="spatie-activitylog-ui-screenshot.png" alt="Spatie Activitylog UI Dashboard Screenshot" style="border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-</div>
+📚 **[Complete Documentation](https://www.sadeeq.dev/docs/laravel-spatie-activitylog-ui)** - Comprehensive guide with advanced features, customization options, and troubleshooting.
 
-## 🚀 Key Features
+---
 
-- **📊 Comprehensive Dashboards**: View intuitive timeline interfaces, aggregated analytics, and detailed data tables. 
-- **🔎 Powerful Filtering**: Instantly search by exact dates, specific events, subjects, causers, and models.
-- **💾 Saved Views**: Save your favorite dashboard queries and share default views with your team.
-- **⚡ Zero Build Steps**: Styled beautifully with Tailwind CSS and powered by Alpine.js natively—no NPM commands required!
-- **🛡️ Rock-Solid Security**: Built-in authorization gates, flexible middleware support, and granular user/role whitelists.
-- **📥 Robust Exporting System**: Export millions of records safely to CSV, JSON, Excel (XLSX), or PDF with built-in Laravel Queue background jobs.
+## ✨ Features
 
-## 🛠️ Requirements
+* Table, Timeline & Analytics dashboards
+* Powerful filter panel (date presets, events, users, subjects, search)
+* Saved views, per-page & sorting preferences
+* Export to **CSV / Excel / PDF / JSON**  
+  \* Optional Excel & PDF exports require additional packages (see below)
+* Real-time count & pagination powered by Laravel cache
+* Authorization gate, middleware & granular access lists
+* Tailwind CSS & Alpine.js – no build step required
 
-Before installing, ensure your server meets the following requirements:
+## 🗒️ Requirements
 
-- **PHP**: `^8.3`
-- **Laravel**: `11.x` | `12.x` | `13.x`
-- **Spatie Activitylog**: `^5.0`
+* PHP 8.2 | 8.3 | 8.4 | 8.5
+* Laravel 10 | 11 | 12 | 13
+* [spatie/laravel-activitylog](https://github.com/spatie/laravel-activitylog) v4 or v5
+* Database table `activity_log` with Spatie’s default columns
 
-### Optional Export Dependencies
-If you wish to export to Excel or PDF, simply install the required packages. The UI gracefully falls back to CSV if these are missing.
+### Supported matrix
 
+| Laravel | PHP | Spatie activitylog |
+|---------|-----|--------------------|
+| 10.x | 8.2 - 8.5 | 4.x |
+| 11.x | 8.2 - 8.5 | 4.x |
+| 12.x | 8.2 - 8.5 with 4.x, 8.4 - 8.5 with 5.x | 4.x or 5.x |
+| 13.x | 8.4 - 8.5 | 5.x |
+
+Spatie activitylog v5 is handled through a compatibility layer in this package, but Composer will still enforce the upstream package's own minimum Laravel/PHP requirements for that version.
+
+### Optional (for export)
+
+| Feature | Package | Version |
+|---------|---------|---------|
+| Excel (XLSX) | `maatwebsite/excel` | ^3.1 |
+| PDF | `barryvdh/laravel-dompdf` | ^2.0 |
+
+Add them when you need those formats:
 ```bash
 composer require maatwebsite/excel barryvdh/laravel-dompdf
 ```
 
-## 📦 Installation
+---
 
-1. **Install the package via Composer:**
+## 🚀 Installation
 
+1. **Install the package**
    ```bash
    composer require mayaram/spatie-activitylog-ui
    ```
-
-2. **Publish Configuration:** (Optional but recommended)
-
+2. **(Optional) Publish resources**
    ```bash
+   # Config file (config/spatie-activitylog-ui.php)
    php artisan vendor:publish --provider="Mayaram\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-config"
-   ```
 
-3. **Publish Assets & Views:** (Optional if you wish to override styling)
-
-   ```bash
-   php artisan vendor:publish --provider="Mayaram\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-assets"
+   # Blade views (if you want to customise)
    php artisan vendor:publish --provider="Mayaram\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-views"
-   ```
 
-4. **Verify Database Configuration:**
-   If you have not already migrated Spatie's activity log, run:
-   
+   # Public assets (logo, js, css)
+   php artisan vendor:publish --provider="Mayaram\SpatieActivitylogUi\SpatieActivitylogUiServiceProvider" --tag="spatie-activitylog-ui-assets"
+   ```
+3. **Run migrations**   
+   Ensure you have already run Spatie’s migrations so the `activity_log` table exists:
    ```bash
    php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-migrations"
    php artisan migrate
    ```
+4. **Visit the UI**   
+   ```
+   /spatie-activitylog-ui   # default route prefix
+   ```
 
-You are now ready to go! 🎉 Visit **`/spatie-activitylog-ui`** in your browser to access the dashboard.
+---
 
-## ⚙️ Configuration
+## ⚙️ Configuration Overview
 
-Your `config/spatie-activitylog-ui.php` file controls routing, access rules, UI defaults, exports, and analytics behavior.
-
-### Core Settings
-```php
-'route' => [
-    'prefix' => 'spatie-activitylog-ui', // The root URL of the UI
-    'name' => 'spatie-activitylog-ui.',
-    'middleware' => null, // Auto-detected from authorization settings, or set explicitly
-],
-```
-
-### Authorization (Gates & Access Control)
-By default, the UI is publicly reachable through the `web` middleware and the package gate allows authenticated users when authorization is enabled. Turn authorization on to require login and package-level access checks.
+A full configuration file is published to `config/spatie-activitylog-ui.php`.  Below is a quick reference:
 
 ```php
-'authorization' => [
-    'enabled' => true,
-    'gate' => 'viewActivityLogUi',
-],
-
-'access' => [
-    'allowed_users' => ['admin@example.com'],
-    'allowed_roles' => ['super-admin'],
-],
-```
-
-If `authorization.enabled` is `false`, package routes use only the `web` middleware unless you override `route.middleware` manually.
-
-## 💡 Analytics & Caching
-
-The dashboard relies on caching to prevent heavy queries from lagging your database when dealing with millions of log rows.
-
-```php
-'features' => [
-    'analytics' => true,      // Turn on/off the top metrics bar
-],
-
-'performance' => [
-    'cache_prefix' => 'activitylog_ui',
-    'eager_load_relations' => ['causer', 'subject'], // Optimize N+1 issues
-],
-```
-
-## 🖥️ Background Export Jobs
-
-If your database contains millions of rows, attempting to export them via HTTP will likely result in a timeout. We bypass this by queuing exports seamlessly:
-
-```php
-'exports' => [
-    'enabled_formats' => ['csv', 'xlsx', 'pdf', 'json'],
-    
-    // Limits
-    'max_records' => 100000, 
-    
-    'queue' => [
-        'enabled'   => true, // Run exports via the Laravel Job queue!
-        'queue_name'=> 'exports',
+return [
+    'route' => [
+        'prefix' => 'spatie-activitylog-ui', // URL prefix
+        'middleware' => null,         // Auto-detected or custom array
     ],
-    
-    // Get alerted when large exports are ready to download
-    'notifications' => [
-        'enabled' => true,
-        'channels' => ['mail'] 
-    ]
-],
+
+    'authorization' => [
+        'enabled' => false,           // true => uses Gate / auth middleware
+        'gate'    => 'viewActivityLogUi',
+    ],
+
+    'access' => [
+        'allowed_users' => [],        // user email whitelist
+        'allowed_roles' => [],        // role names (Spatie Permission, etc.)
+    ],
+
+    'features' => [
+        'analytics' => true,
+        'exports'   => true,
+        'saved_views' => true,
+    ],
+
+    'exports' => [
+        'enabled_formats' => ['csv', 'xlsx', 'pdf', 'json'],
+        'max_records'     => 10000,
+        'queue' => [
+            'enabled'   => false,
+            'threshold' => 1000,
+            'queue_name'=> 'exports',
+        ],
+    ],
+];
 ```
+Refer to the inline comments in the file for every available option.
+
+---
+
+## 🔐 Authorization & Access Control
+
+* **Gate:** `viewActivityLogUi` is auto-registered (see `SpatieActivitylogUiServiceProvider`).  You may define it in your own code or rely on the package’s default email/role checks.
+* **Toggle authentication:** Set `authorization.enabled` to `true` to require login + gate.
+* **Granular lists:** `access.allowed_users` and `access.allowed_roles` let you open the UI to a subset of users—regardless of the gate.
+
+---
+
+## 📤 Exports
+
+* **CSV & JSON** work out-of-the-box.
+* **Excel (XLSX)** requires `maatwebsite/excel` – otherwise we gracefully fall back to CSV.
+* **PDF** requires `barryvdh/laravel-dompdf` – otherwise we fall back to JSON.
+* Large exports can be **queued**; enable `exports.queue.enabled`.
+
+---
+
+## 📈 Analytics Dashboard
+
+Enable/disable with `features.analytics`.  Caches stats for `analytics.cache_duration` seconds (default 1 h).
+
+---
 
 ## 🤝 Contributing
 
-We welcome your PRs and feature requests!
-Please open an issue to discuss major changes before making a pull request.
+PRs and issues are welcome!
 
-## ✅ Testing
-
-The package uses PHPUnit with Orchestra Testbench.
-
-```bash
-composer test
-```
-
-The current test suite covers package bootstrapping, route registration, and access gate behavior.
+---
 
 ## 📝 License
 
-This package is free and open-source software distributed under the terms of the MIT License. See `LICENSE` for details.
+The MIT License (MIT).  See `LICENSE` for details. 
+
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/mayaram/spatie-activitylog-ui.svg?style=flat-square)](https://packagist.org/packages/mayaram/spatie-activitylog-ui)
+[![Total Downloads](https://img.shields.io/packagist/dt/mayaram/spatie-activitylog-ui.svg?style=flat-square)](https://packagist.org/packages/mayaram/spatie-activitylog-ui)

@@ -4,7 +4,9 @@ namespace Mayaram\SpatieActivitylogUi\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
 class Activity extends SpatieActivity
@@ -13,9 +15,16 @@ class Activity extends SpatieActivity
      * The attributes that should be cast.
      */
     protected $casts = [
-        'properties' => 'array',
+        'properties' => 'collection',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+    ];
+
+    /**
+     * Keep legacy UI keys available when serializing models.
+     */
+    protected $appends = [
+        'attribute_changes',
     ];
 
     /**
@@ -162,7 +171,7 @@ class Activity extends SpatieActivity
      */
     public function getFormattedChangesAttribute(): array
     {
-        $changesData = $this->properties ?? [];
+        $changesData = $this->getNormalizedAttributeChanges();
         $changes = [];
 
         if (isset($changesData['old'], $changesData['attributes'])) {
@@ -212,8 +221,17 @@ class Activity extends SpatieActivity
      */
     public function hasPropertyChanges(): bool
     {
-        $changesData = $this->properties ?? [];
+        $changesData = $this->getNormalizedAttributeChanges();
+
         return isset($changesData['old']) && isset($changesData['attributes']);
+    }
+
+    /**
+     * Preserve the legacy attribute name expected by the UI.
+     */
+    public function getAttributeChangesAttribute(): array
+    {
+        return $this->getNormalizedAttributeChanges();
     }
 
     /**
@@ -265,5 +283,62 @@ class Activity extends SpatieActivity
             'restored' => 'yellow',
             default => 'gray',
         };
+    }
+
+    /**
+     * Normalize Spatie v4/v5 properties into the legacy change payload used by this UI.
+     */
+    protected function getNormalizedAttributeChanges(): array
+    {
+        $properties = $this->normalizeProperties($this->properties ?? null);
+
+        if (isset($properties['old']) || isset($properties['attributes'])) {
+            return [
+                'old' => Arr::get($properties, 'old', []),
+                'attributes' => Arr::get($properties, 'attributes', []),
+            ];
+        }
+
+        $legacyChanges = Arr::get($properties, 'attribute_changes');
+
+        if (is_array($legacyChanges)) {
+            return [
+                'old' => Arr::get($legacyChanges, 'old', []),
+                'attributes' => Arr::get($legacyChanges, 'attributes', []),
+            ];
+        }
+
+        if (method_exists($this, 'changes')) {
+            $changes = $this->changes();
+
+            if (is_array($changes) && (isset($changes['old']) || isset($changes['attributes']))) {
+                return [
+                    'old' => Arr::get($changes, 'old', []),
+                    'attributes' => Arr::get($changes, 'attributes', []),
+                ];
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Convert the stored properties payload into a predictable array.
+     */
+    protected function normalizeProperties(mixed $properties): array
+    {
+        if ($properties instanceof Collection) {
+            return $properties->toArray();
+        }
+
+        if (is_array($properties)) {
+            return $properties;
+        }
+
+        if ($properties instanceof \ArrayAccess) {
+            return (array) $properties;
+        }
+
+        return [];
     }
 }

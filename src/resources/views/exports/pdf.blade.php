@@ -4,39 +4,32 @@
     <meta charset="utf-8">
     <title>{{ $title }}</title>
     <style>
-        @page {
-            margin: 1.5cm;
-        }
-        
         body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 10pt;
-            line-height: 1.5;
-            color: #1a1a1a;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
 
         .header {
-            margin-bottom: 40px;
-            border-bottom: 3px solid #f4f4f5;
-            padding-bottom: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 20px;
         }
 
         .header h1 {
             margin: 0;
-            font-size: 22pt;
-            letter-spacing: -0.02em;
-            color: #09090b;
-            font-weight: 900;
-            text-transform: uppercase;
+            font-size: 24px;
+            color: #2d3748;
         }
 
         .meta-info {
-            margin-bottom: 30px;
-            background: #fafafa;
-            padding: 20px;
-            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 11px;
+            color: #666;
         }
 
         .meta-info table {
@@ -45,18 +38,13 @@
         }
 
         .meta-info td {
-            padding: 5px 0;
+            padding: 4px 0;
             vertical-align: top;
-            font-size: 9pt;
         }
 
         .meta-info .label {
-            font-weight: 800;
+            font-weight: bold;
             width: 120px;
-            color: #71717a;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-size: 7pt;
         }
 
         .activities-table {
@@ -65,101 +53,99 @@
             margin-top: 20px;
         }
 
-        .activities-table th {
-            background-color: #09090b;
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 7pt;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            padding: 12px 10px;
+        .activities-table th,
+        .activities-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
             text-align: left;
-            border: none;
+            vertical-align: top;
+        }
+
+        .activities-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
         }
 
         .activities-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #f4f4f5;
-            vertical-align: top;
-            font-size: 8pt;
+            font-size: 10px;
         }
 
         .event-badge {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 7pt;
-            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        .event-created { background-color: #ecfdf5; color: #065f46; }
-        .event-updated { background-color: #eff6ff; color: #1e40af; }
-        .event-deleted { background-color: #fef2f2; color: #991b1b; }
-        .event-restored { background-color: #fffbeb; color: #92400e; }
-        .event-login { background-color: #f5f3ff; color: #5b21b6; }
-        .event-logout { background-color: #f5f3ff; color: #5b21b6; }
-        .event-system { background-color: #faf5ff; color: #6b21a8; }
-        .event-default { background-color: #f4f4f5; color: #27272a; }
+        .event-created { background-color: #d4edda; color: #155724; }
+        .event-updated { background-color: #cce7ff; color: #004085; }
+        .event-deleted { background-color: #f8d7da; color: #721c24; }
+        .event-restored { background-color: #fff3cd; color: #856404; }
+        .event-login { background-color: #e2e3ff; color: #383d75; }
+        .event-logout { background-color: #e2e3ff; color: #383d75; }
+        .event-system { background-color: #f1c2ff; color: #6b1f84; }
+        .event-default { background-color: #e9ecef; color: #495057; }
 
-        .id-cell { font-family: monospace; color: #71717a; }
-        .date-cell { white-space: nowrap; font-weight: 600; }
-        .user-cell { font-weight: 700; color: #09090b; }
-        
         .description {
-            color: #3f3f46;
-            line-height: 1.4;
+            max-width: 200px;
+            word-wrap: break-word;
         }
 
         .changes {
-            font-size: 7pt;
-            color: #71717a;
             font-style: italic;
+            color: #666;
         }
 
         .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
+            margin-top: 30px;
             text-align: center;
-            font-size: 7pt;
-            color: #a1a1aa;
-            border-top: 1px solid #f4f4f5;
+            font-size: 10px;
+            color: #888;
+            border-top: 1px solid #ddd;
             padding-top: 15px;
         }
 
-        .page-number:after {
-            content: counter(page);
+        .page-break {
+            page-break-after: always;
+        }
+
+        /* Responsive adjustments for smaller content */
+        @media print {
+            body { margin: 0; }
+            .header { page-break-after: avoid; }
+            .activities-table { page-break-inside: auto; }
+            .activities-table tr { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Activity Report</h1>
+        <h1>{{ $title }}</h1>
     </div>
 
     <div class="meta-info">
         <table>
             <tr>
-                <td class="label">Date Generated</td>
+                <td class="label">Generated At:</td>
                 <td>{{ $generated_at->format('F j, Y \a\t g:i A T') }}</td>
             </tr>
             <tr>
-                <td class="label">Volume</td>
-                <td>{{ number_format($total_count) }} Records Extracted</td>
+                <td class="label">Total Records:</td>
+                <td>{{ number_format($total_count) }}</td>
             </tr>
             @if(!empty($filters))
             <tr>
-                <td class="label">Constraints</td>
+                <td class="label">Filters Applied:</td>
                 <td>
                     @foreach($filters as $key => $value)
                         @if($value)
-                            <span style="color: #71717a;">{{ ucfirst(str_replace('_', ' ', $key)) }}:</span>
-                            <span style="font-weight: 600;">{{ is_array($value) ? implode(', ', $value) : $value }}</span>
-                            @if(!$loop->last) &bull; @endif
+                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
+                            {{ is_array($value) ? implode(', ', $value) : $value }}
+                            @if(!$loop->last), @endif
                         @endif
                     @endforeach
                 </td>
@@ -171,21 +157,21 @@
     <table class="activities-table">
         <thead>
             <tr>
-                <th style="width: 5%;">ID</th>
-                <th style="width: 15%;">Timestamp</th>
-                <th style="width: 15%;">Originator</th>
-                <th style="width: 10%;">Signature</th>
-                <th style="width: 15%;">Resource</th>
-                <th style="width: 25%;">Insight</th>
-                <th style="width: 15%;">Delta</th>
+                <th style="width: 8%;">ID</th>
+                <th style="width: 15%;">Date & Time</th>
+                <th style="width: 15%;">User</th>
+                <th style="width: 10%;">Event</th>
+                <th style="width: 15%;">Subject</th>
+                <th style="width: 25%;">Description</th>
+                <th style="width: 12%;">Changes</th>
             </tr>
         </thead>
         <tbody>
             @forelse($activities as $activity)
             <tr>
-                <td class="id-cell">#{{ $activity->id }}</td>
-                <td class="date-cell">{{ $activity->created_at->format('M j, Y') }}<br/><span style="font-size: 7pt; color: #71717a;">{{ $activity->created_at->format('H:i:s') }}</span></td>
-                <td class="user-cell">{{ $activity->causer_name ?? 'System Automated' }}</td>
+                <td>{{ $activity->id }}</td>
+                <td>{{ $activity->created_at->format('M j, Y H:i') }}</td>
+                <td>{{ $activity->causer_name ?? 'System' }}</td>
                 <td>
                     <span class="event-badge event-{{ $activity->event ?? 'default' }}">
                         {{ $activity->event ?? 'unknown' }}
@@ -193,10 +179,9 @@
                 </td>
                 <td>
                     @if($activity->subject_type)
-                        <span style="font-weight: 700; color: #09090b;">{{ class_basename($activity->subject_type) }}</span><br/>
-                        <span style="font-size: 7pt; color: #71717a;">Ref #{{ $activity->subject_id }}</span>
+                        {{ class_basename($activity->subject_type) }} #{{ $activity->subject_id }}
                     @else
-                        <span style="color: #d1d5db;">N/A</span>
+                        N/A
                     @endif
                 </td>
                 <td class="description">{{ $activity->description }}</td>
@@ -204,14 +189,14 @@
                     @if($activity->hasPropertyChanges())
                         {{ $activity->getChangesSummary() }}
                     @else
-                        Stateless
+                        No changes tracked
                     @endif
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="7" style="text-align: center; padding: 60px; color: #a1a1aa; font-style: italic;">
-                    No activity telemetry found matching the current filtration parameters.
+                <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                    No activities found matching the specified criteria.
                 </td>
             </tr>
             @endforelse
@@ -220,8 +205,8 @@
 
     <div class="footer">
         <p>
-            Consolidated telemetric audit log &bull; Page <span class="page-number"></span> &bull; 
-            Generated on {{ $generated_at->format('Y-m-d H:i') }}
+            This report contains {{ number_format($total_count) }} activity log entries.
+            Generated by ActivityLog UI on {{ $generated_at->format('F j, Y \a\t g:i A') }}.
         </p>
     </div>
 </body>

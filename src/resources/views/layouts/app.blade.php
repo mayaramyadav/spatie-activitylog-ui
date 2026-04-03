@@ -23,40 +23,21 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
                     colors: {
-                        primary: {
-                            50: '#f5f7ff',
-                            100: '#ebf0fe',
-                            200: '#dee5fd',
-                            300: '#c4d1fb',
-                            400: '#9fb1f7',
-                            500: '#758bef',
-                            600: '#5a6ee5',
-                            700: '#4a59d4',
-                            800: '#3e49ad',
-                            900: '#363f89',
-                            950: '#20254f',
-                        },
-                        zinc: {
-                            50: '#fafafa',
-                            100: '#f4f4f5',
-                            200: '#e4e4e7',
-                            300: '#d4d4d8',
-                            400: '#a1a1aa',
-                            500: '#71717a',
-                            600: '#52525b',
-                            700: '#3f3f46',
-                            800: '#27272a',
-                            900: '#18181b',
-                            950: '#09090b',
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
                         }
-                    },
-                    boxShadow: {
-                        'soft': '0 12px 30px -18px rgba(15, 23, 42, 0.32), 0 8px 18px -16px rgba(14, 116, 144, 0.22)',
-                        'inner-soft': 'inset 0 1px 2px 0 rgba(148, 163, 184, 0.15)',
                     }
                 }
             }
@@ -74,35 +55,44 @@
     <style>
         [x-cloak] { display: none !important; }
 
-        /* Custom scrollbar - Modern & Minimal */
+        /* Custom scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
+            background: #f3f4f6;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            @apply bg-zinc-200 dark:bg-zinc-700 rounded-full;
+            background: #d1d5db;
+            border-radius: 2px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            @apply bg-zinc-300 dark:bg-zinc-600;
+            background: #9ca3af;
         }
 
-        /* Glassmorphism utility */
-        .glass {
-            @apply bg-white/78 dark:bg-slate-900/82 backdrop-blur-xl border border-slate-200/70 dark:border-slate-700/60;
+        /* Loading animation */
+        .loading-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        /* Activity status colors - More vibrant & modern */
-        .status-badge {
-            @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase;
+        /* Activity status colors */
+        .status-created { @apply bg-green-100 text-green-800; }
+        .status-updated { @apply bg-blue-100 text-blue-800; }
+        .status-deleted { @apply bg-red-100 text-red-800; }
+        .status-restored { @apply bg-yellow-100 text-yellow-800; }
+        .status-custom { @apply bg-purple-100 text-purple-800; }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: #374151;
         }
-        .status-created { @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900; }
-        .status-updated { @apply bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-300 border border-sky-200 dark:border-sky-900; }
-        .status-deleted { @apply bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-900; }
-        .status-restored { @apply bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900; }
-        .status-custom { @apply bg-teal-100 text-teal-800 dark:bg-teal-950/40 dark:text-teal-300 border border-teal-200 dark:border-teal-900; }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #6b7280;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
     </style>
 
     <!-- Global Alpine.js Functions -->
@@ -581,33 +571,33 @@
         window.ActivityTypeStyler = {
             // Predefined semantic colors for common activity types
             semanticColors: {
-                'created': 'emerald',
-                'updated': 'sky',
-                'deleted': 'rose',
-                'restored': 'amber',
-                'login': 'teal',
-                'logout': 'cyan',
-                'system': 'slate',
+                'created': 'green',
+                'updated': 'blue',
+                'deleted': 'red',
+                'restored': 'yellow',
+                'login': 'purple',
+                'logout': 'indigo',
+                'system': 'pink',
                 'error': 'red',
                 'warning': 'amber',
-                'info': 'sky',
-                'success': 'emerald',
-                'failed': 'rose',
-                'completed': 'emerald',
-                'started': 'cyan',
-                'cancelled': 'slate',
-                'pending': 'amber',
-                'approved': 'emerald',
-                'rejected': 'rose',
-                'published': 'emerald',
-                'drafted': 'slate',
+                'info': 'blue',
+                'success': 'green',
+                'failed': 'red',
+                'completed': 'green',
+                'started': 'blue',
+                'cancelled': 'gray',
+                'pending': 'yellow',
+                'approved': 'green',
+                'rejected': 'red',
+                'published': 'green',
+                'drafted': 'gray',
                 'archived': 'slate',
             },
 
             // Color palette for unknown activity types
             colorPalette: [
-                'sky', 'teal', 'emerald', 'cyan', 'blue', 'lime',
-                'amber', 'orange', 'rose', 'indigo', 'fuchsia', 'slate'
+                'blue', 'green', 'purple', 'pink', 'indigo', 'cyan',
+                'teal', 'emerald', 'lime', 'amber', 'orange', 'rose'
             ],
 
             // Icon mapping for activity types
@@ -797,35 +787,67 @@
       x-data
       x-init="$store.darkMode.init()"
       :class="{ 'dark': $store.darkMode.on }">
-    <div class="min-h-full bg-stone-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-500">
+    <div class="min-h-full bg-gray-50 dark:bg-gray-900">
         <!-- Navigation Header -->
-        <nav class="sticky top-0 z-40 glass border-b shadow-soft">
+        <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
-                        <a href="{{ route('spatie-activitylog-ui.dashboard') }}" class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-soft">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9m-7-4h2m-2 0v2m0-2L9 8m5-3l3 3"></path>
+                        <!-- Logo -->
+                        <div class="flex-shrink-0 flex items-center">
+                            @if(config('spatie-activitylog-ui.ui.logo'))
+                                <img class="h-8 w-auto" src="{{ config('spatie-activitylog-ui.ui.logo') }}" alt="{{ config('spatie-activitylog-ui.ui.brand') }}">
+                            @else
+                                <!-- Inline SVG Logo that responds to dark mode -->
+                                <svg class="h-8 w-auto" width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Background gradient -->
+                                    <defs>
+                                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                            <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                                        </linearGradient>
+                                    </defs>
+
+                                    <!-- Icon container -->
+                                    <rect x="2" y="4" width="32" height="32" rx="8" fill="url(#logoGradient)"/>
+
+                                    <!-- Activity log icon -->
+                                    <g transform="translate(8, 10)">
+                                        <!-- Document base -->
+                                        <path d="M4 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V6.414A2 2 0 0017.414 5L15 2.586A2 2 0 0013.586 2H4z"
+                                              fill="white" fill-opacity="0.9"/>
+
+                                        <!-- Activity lines -->
+                                        <circle cx="6" cy="8" r="1.5" fill="white"/>
+                                        <line x1="9" y1="8" x2="14" y2="8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+
+                                        <circle cx="6" cy="12" r="1.5" fill="white"/>
+                                        <line x1="9" y1="12" x2="13" y2="12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+
+                                        <circle cx="6" cy="16" r="1.5" fill="white"/>
+                                        <line x1="9" y1="16" x2="12" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                                    </g>
+
+                                    <!-- Text that adapts to dark mode -->
+                                    <text x="42" y="16" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600"
+                                          class="fill-gray-800 dark:fill-gray-100">
+                                        ActivityLog
+                                    </text>
+                                    <text x="42" y="28" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="500"
+                                          class="fill-gray-500 dark:fill-gray-300">
+                                        UI
+                                    </text>
                                 </svg>
-                            </div>
-                            <div class="leading-tight">
-                                <div class="text-sm font-black uppercase tracking-[0.18em] text-slate-900 dark:text-slate-100">
-                                    {{ config('spatie-activitylog-ui.ui.brand', 'ActivityLog UI') }}
-                                </div>
-                                <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">
-                                    Audit Dashboard
-                                </div>
-                            </div>
-                        </a>
+                            @endif
+                        </div>
 
                         <!-- Navigation Links -->
                         <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
                             <a href="{{ route('spatie-activitylog-ui.dashboard') }}"
                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
                                       {{ request()->routeIs('spatie-activitylog-ui.dashboard')
-                                         ? 'border-teal-500 text-slate-900 dark:text-slate-100'
-                                         : 'border-transparent text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-700 dark:hover:text-slate-200' }}">
+                                         ? 'border-blue-500 text-gray-900 dark:text-white'
+                                         : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300' }}">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5h2a2 2 0 012 2v6a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2z"></path>
@@ -840,7 +862,7 @@
                     <div class="flex items-center space-x-4">
                         <!-- Theme toggle -->
                         <button @click="$store.darkMode.toggle()"
-                                class="rounded-xl p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-white/80 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/40">
+                                class="p-2 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <svg x-show="!$store.darkMode.on" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                             </svg>
@@ -854,12 +876,12 @@
                             <div class="relative" x-data="{ open: false }">
                                 <button @click="open = !open"
                                         @click.away="open = false"
-                                        class="flex items-center space-x-3 rounded-xl p-2 text-slate-700 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/40 transition-colors">
+                                        class="flex items-center space-x-3 p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
                                     <span class="text-sm">
                                         {{ auth()->user()->name ?? auth()->user()->email }}
                                     </span>
-                                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700">
-                                        <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
+                                    <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                                             {{ substr(auth()->user()->name ?? auth()->user()->email, 0, 1) }}
                                         </span>
                                     </div>
@@ -876,14 +898,14 @@
                                      x-transition:leave="transition ease-in duration-75"
                                      x-transition:leave-start="transform opacity-100 scale-100"
                                      x-transition:leave-end="transform opacity-0 scale-95"
-                                     class="absolute right-0 z-50 mt-2 w-48 rounded-2xl bg-white/95 dark:bg-slate-900/95 shadow-soft ring-1 ring-slate-200/80 dark:ring-slate-700/80 backdrop-blur">
+                                     class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 z-50">
                                     <div class="py-1">
                                         <!-- User info -->
-                                        <div class="border-b border-slate-200 dark:border-slate-700 px-4 py-2">
-                                            <p class="text-sm font-medium text-slate-900 dark:text-slate-100">
+                                        <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">
                                                 {{ auth()->user()->name ?? 'User' }}
                                             </p>
-                                            <p class="text-sm text-slate-500 dark:text-slate-400">
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">
                                                 {{ auth()->user()->email }}
                                             </p>
                                         </div>
@@ -892,7 +914,7 @@
                                         <form method="POST" action="{{ route('logout') }}" class="block">
                                             @csrf
                                             <button type="submit"
-                                                    class="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:bg-slate-100 dark:focus:bg-slate-800 transition-colors">
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition-colors">
                                                 <div class="flex items-center">
                                                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -911,7 +933,7 @@
         </nav>
 
         <!-- Main Content -->
-        <main class="flex-1 bg-[radial-gradient(circle_at_top_left,_rgba(20,184,166,0.08),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(14,165,233,0.06),_transparent_24%)] p-6">
+        <main class="flex-1 p-6">
             @yield('content')
         </main>
 
@@ -928,32 +950,32 @@
                          x-transition:leave="transform ease-in duration-200"
                          x-transition:leave-start="translate-x-0 opacity-100"
                          x-transition:leave-end="translate-x-full opacity-0"
-                         class="pointer-events-auto flex w-full max-w-sm rounded-2xl bg-white/95 dark:bg-slate-900/95 shadow-soft ring-1 ring-slate-200/80 dark:ring-slate-700/80 backdrop-blur">
+                         class="max-w-sm w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10">
                         <div class="flex-1 w-0 p-4">
                             <div class="flex items-start">
                                 <div class="flex-shrink-0">
-                                    <svg x-show="notification.type === 'success'" class="h-6 w-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg x-show="notification.type === 'success'" class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <svg x-show="notification.type === 'error'" class="h-6 w-6 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg x-show="notification.type === 'error'" class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <svg x-show="notification.type === 'warning'" class="h-6 w-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg x-show="notification.type === 'warning'" class="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                     </svg>
-                                    <svg x-show="notification.type === 'info'" class="h-6 w-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg x-show="notification.type === 'info'" class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
                                 <div class="ml-3 w-0 flex-1 pt-0.5">
-                                    <p class="text-sm font-medium text-slate-900 dark:text-slate-100" x-text="notification.title"></p>
-                                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400" x-text="notification.message"></p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white" x-text="notification.title"></p>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="notification.message"></p>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex border-l border-slate-200 dark:border-slate-700">
+                        <div class="flex border-l border-gray-200 dark:border-gray-700">
                             <button @click="remove(notification.id)"
-                                    class="flex w-full items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500/40">
+                                    class="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>

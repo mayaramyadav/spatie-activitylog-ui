@@ -29,7 +29,7 @@ class ActivityLogSeeder extends Seeder
                 ->event('updated')
                 ->withProperties([
                     'attributes' => ['name' => 'Updated User Name'],
-                    'old' => ['name' => 'Old User Name']
+                    'old' => ['name' => 'Old User Name'],
                 ])
                 ->log('User profile updated');
 

@@ -4,42 +4,80 @@
      class="space-y-6">
 
     <!-- Analytics Header -->
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-soft p-6 border border-zinc-200 dark:border-zinc-800 transition-all duration-300">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">Intelligence & Insights</h3>
-                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis">Monitoring activity patterns and system engagement metrics</p>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Analytics Overview</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Activity insights and trends over time
+                </p>
             </div>
 
             <!-- Time Period Selector -->
-            <div class="flex flex-col sm:flex-row items-center gap-3">
-                <div class="inline-flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700/50 shadow-inner-soft shrink-0">
-                    <template x-for="period in ['today', '7', '30', '90']" :key="period">
-                        <button @click="selectedPeriod = period; loadAnalytics()"
-                                :class="selectedPeriod === period 
-                                    ? 'bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 shadow-soft font-black' 
-                                    : 'text-zinc-500 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 font-bold'"
-                                class="px-4 py-1.5 text-[10px] uppercase tracking-widest rounded-lg transition-all duration-200"
-                                x-text="period === 'today' ? 'Today' : period + 'D'"></button>
-                    </template>
-                    <button @click="selectedPeriod = 'custom'"
-                            :class="selectedPeriod === 'custom' 
-                                ? 'bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 shadow-soft font-black' 
-                                : 'text-zinc-500 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 font-bold'"
-                            class="px-4 py-1.5 text-[10px] uppercase tracking-widest rounded-lg transition-all duration-200">
-                        Custom
+            <div class="flex flex-col space-y-2">
+                <div class="flex flex-wrap gap-1 sm:gap-2">
+                    <button @click="selectedPeriod = 'today'; loadAnalytics()"
+                            :class="{
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700': selectedPeriod === 'today',
+                                'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600': selectedPeriod !== 'today'
+                            }"
+                            class="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap">
+                        Today
+                    </button>
+                    <button @click="selectedPeriod = '7'; loadAnalytics()"
+                            :class="{
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700': selectedPeriod === '7',
+                                'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600': selectedPeriod !== '7'
+                            }"
+                            class="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap">
+                        7 Days
+                    </button>
+                    <button @click="selectedPeriod = '30'; loadAnalytics()"
+                            :class="{
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700': selectedPeriod === '30',
+                                'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600': selectedPeriod !== '30'
+                            }"
+                            class="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap">
+                        30 Days
+                    </button>
+                    <button @click="selectedPeriod = '90'; loadAnalytics()"
+                            :class="{
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700': selectedPeriod === '90',
+                                'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600': selectedPeriod !== '90'
+                            }"
+                            class="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap">
+                        90 Days
+                    </button>
+                    <button @click="selectedPeriod = 'custom'; showCustomDateRange = true"
+                            :class="{
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700': selectedPeriod === 'custom',
+                                'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600': selectedPeriod !== 'custom'
+                            }"
+                            class="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap">
+                        Custom Range
                     </button>
                 </div>
 
-                <!-- Custom Range Inputs -->
-                <div x-show="selectedPeriod === 'custom'" x-collapse class="flex items-center gap-2">
-                    <div class="relative">
-                        <input type="date" x-model="customStartDate" @change="loadAnalytics()"
-                               class="block px-3 py-1.5 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:ring-2 focus:ring-indigo-500/20 text-zinc-900 dark:text-white">
+                <!-- Custom Date Range -->
+                <div x-show="selectedPeriod === 'custom'"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 transform scale-95"
+                     x-transition:enter-end="opacity-100 transform scale-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 transform scale-100"
+                     x-transition:leave-end="opacity-0 transform scale-95"
+                     class="grid grid-cols-2 gap-2">
+                    <div>
+                        <input type="date"
+                               x-model="customStartDate"
+                               @change="loadAnalytics()"
+                               class="block w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500">
                     </div>
-                    <div class="relative">
-                        <input type="date" x-model="customEndDate" @change="loadAnalytics()"
-                               class="block px-3 py-1.5 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:ring-2 focus:ring-indigo-500/20 text-zinc-900 dark:text-white">
+                    <div>
+                        <input type="date"
+                               x-model="customEndDate"
+                               @change="loadAnalytics()"
+                               class="block w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
             </div>
@@ -47,186 +85,204 @@
     </div>
 
     <!-- Stats Cards -->
-    <!-- Stats Matrix -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Total Card -->
-        <div class="relative bg-white dark:bg-zinc-900/50 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-soft overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-12 h-12 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl shadow-inner-soft">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-gray-900/20 transition-all duration-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Total Events</p>
-                    <p class="text-2xl font-black text-zinc-900 dark:text-white tabular-nums" x-text="stats.total || '0'"></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Today Card -->
-        <div class="bg-white dark:bg-zinc-900/50 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-soft relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-12 h-12 flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl shadow-inner-soft">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Recorded Today</p>
-                    <p class="text-2xl font-black text-zinc-900 dark:text-white tabular-nums" x-text="stats.today || '0'"></p>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Activities</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.total || '0'"></p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">All time</p>
                 </div>
             </div>
         </div>
 
-        <!-- Week Card -->
-        <div class="bg-white dark:bg-zinc-900/50 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-soft relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-12 h-12 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl shadow-inner-soft">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-gray-900/20 transition-all duration-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 dark:from-green-400 dark:to-green-500 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Active This Week</p>
-                    <p class="text-2xl font-black text-zinc-900 dark:text-white tabular-nums" x-text="stats.activities_this_week || '0'"></p>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Today's Activities</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.today || '0'"></p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Last 24 hours</p>
                 </div>
             </div>
         </div>
 
-        <!-- Month Card -->
-        <div class="bg-white dark:bg-zinc-900/50 p-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-soft relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-24 h-24 bg-orange-500/5 dark:bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/10 transition-colors"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-12 h-12 flex items-center justify-center bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl shadow-inner-soft">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-gray-900/20 transition-all duration-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-400 dark:to-purple-500 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Monthly Traffic</p>
-                    <p class="text-2xl font-black text-zinc-900 dark:text-white tabular-nums" x-text="stats.activities_this_month || '0'"></p>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">This Week</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.activities_this_week || '0'"></p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Last 7 days</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-gray-900/20 transition-all duration-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 dark:from-orange-400 dark:to-orange-500 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">This Month</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats.activities_this_month || '0'"></p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Last 30 days</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Charts & Tables Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Event Concentration -->
-        <div class="bg-white dark:bg-zinc-900 shadow-soft rounded-2xl border border-zinc-100 dark:border-zinc-800 p-6">
-            <div class="flex items-center justify-between mb-8">
-                <h4 class="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest">Event Concentration</h4>
-                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-soft"></div>
-            </div>
-            
-            <div class="space-y-6">
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Event Types Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Activity by Type</h4>
+            <div class="space-y-3">
                 <template x-for="type in eventTypes" :key="type.name">
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <span class="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-wider" x-text="type.name"></span>
-                                <span class="ml-2 px-1.5 py-0.5 bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 text-[9px] font-bold rounded" x-text="type.count"></span>
-                            </div>
-                            <span class="text-[10px] font-black text-zinc-400 dark:text-zinc-500" x-text="type.percentage + '%'"></span>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-3"
+                                 :class="`bg-${window.ActivityTypeStyler?.getColor(type.name) || 'gray'}-500`"></div>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white capitalize" x-text="type.name"></span>
                         </div>
-                        <div class="h-2 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded-full overflow-hidden border border-zinc-100 dark:border-zinc-800/50 shadow-inner-soft">
-                            <div class="h-full rounded-full transition-all duration-1000 ease-out"
-                                 :class="`bg-${window.ActivityTypeStyler?.getColor(type.name) || 'zinc'}-500 shadow-[0_0_8px_rgba(var(--tw-shadow-color),0.4)]`"
-                                 :style="`width: ${type.percentage}%`"
-                                 style="--tw-shadow-color: inherit;"></div>
-                        </div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400" x-text="type.count"></span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="h-2 rounded-full transition-all duration-300"
+                             :class="`bg-${window.ActivityTypeStyler?.getColor(type.name) || 'gray'}-500`"
+                             :style="`width: ${type.percentage}%`"></div>
                     </div>
                 </template>
 
-                <div x-show="!loading && eventTypes.length === 0" class="text-center py-10 opacity-30">
-                    <p class="text-xs font-bold uppercase tracking-widest text-zinc-400">Telemetry Silenced</p>
+                <!-- Empty state -->
+                <div x-show="!loading && eventTypes.length === 0" class="text-center py-8">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No activity types found</p>
                 </div>
             </div>
         </div>
 
-        <!-- Top Propulsion -->
-        <div class="bg-white dark:bg-zinc-900 shadow-soft rounded-2xl border border-zinc-100 dark:border-zinc-800 p-6">
-            <h4 class="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest mb-8">Active Initiators</h4>
+        <!-- Top Users -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Most Active Users</h4>
             <div class="space-y-4">
                 <template x-for="user in topUsers" :key="user.id">
-                    <div class="flex items-center justify-between p-3 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700 transition-all duration-300">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-inner-soft">
-                                <span class="text-xs font-black text-zinc-400" x-text="user.name?.charAt(0) || '?'"></span>
-                            </div>
-                            <div>
-                                <p class="text-xs font-black text-zinc-900 dark:text-white" x-text="user.name"></p>
-                                <p class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500" x-text="user.email"></p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs font-black text-zinc-900 dark:text-white tabular-nums" x-text="user.activity_count"></p>
-                            <p class="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Actions</p>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <!-- Resource Heatmap -->
-        <div class="bg-white dark:bg-zinc-900 shadow-soft rounded-2xl border border-zinc-100 dark:border-zinc-800 p-6 lg:col-span-2">
-            <h4 class="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest mb-8">High-Traffic Resources</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <template x-for="model in popularModels" :key="model.type">
-                    <div class="p-4 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-2xl border border-zinc-100 dark:border-zinc-800 group hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-all">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6 text-zinc-300 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xl font-black text-zinc-900 dark:text-white tabular-nums" x-text="model.activity_count"></span>
-                                <p class="text-[9px] font-black text-zinc-400 uppercase tracking-tighter">Interactions</p>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-xs font-black text-zinc-900 dark:text-white truncate" x-text="model.name"></p>
-                            <p class="text-[10px] font-bold text-zinc-400 dark:text-zinc-600 truncate font-mono" x-text="model.type.split('\\').pop()"></p>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <!-- Activity Propulsion Chart -->
-        <div class="bg-white dark:bg-zinc-900 shadow-soft rounded-2xl border border-zinc-100 dark:border-zinc-800 p-6 lg:col-span-2 overflow-hidden">
-            <h4 class="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest mb-8">Activity Magnitude Over Time</h4>
-            <div class="h-80 w-full relative">
-                <canvas id="activityTrendsChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Granular Feed Progression -->
-        <div class="bg-white dark:bg-zinc-900 shadow-soft rounded-2xl border border-zinc-100 dark:border-zinc-800 p-6 lg:col-span-2">
-            <h4 class="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest mb-8">Distribution Progression</h4>
-            <div class="space-y-4">
-                <template x-for="day in timeline" :key="day.date">
-                    <div class="flex items-center gap-6">
-                        <div class="w-32 shrink-0">
-                            <span class="text-[11px] font-black text-zinc-900 dark:text-white tabular-nums" x-text="day.date"></span>
-                            <span class="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest" x-text="day.day_name"></span>
-                        </div>
-                        <div class="flex-1">
-                            <div class="h-4 w-full bg-zinc-50 dark:bg-zinc-800/50 rounded-lg group relative overflow-hidden border border-zinc-100 dark:border-zinc-800/50">
-                                <div class="h-full bg-indigo-500/20 dark:bg-indigo-500/30 rounded-lg transition-all duration-1000"
-                                     :style="`width: ${day.percentage}%`"
-                                     :class="{ 'opacity-20': day.count === 0 }"></div>
-                                <div class="absolute inset-y-0 left-0 flex items-center px-3">
-                                    <span class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 tabular-nums shadow-soft" x-text="day.count + ' EVENTS'"></span>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8">
+                                <div class="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300"
+                                          x-text="user.name?.charAt(0) || '?'"></span>
                                 </div>
                             </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white" x-text="user.name"></p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="user.email"></p>
+                            </div>
                         </div>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white" x-text="user.activity_count"></span>
                     </div>
                 </template>
             </div>
         </div>
     </div>
 
-    <!-- Loading Sentinel -->
-    <div x-show="loading" x-transition x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/10 dark:bg-white/5 backdrop-blur-sm">
-        <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-soft border border-zinc-200 dark:border-zinc-800 flex flex-col items-center gap-4">
-            <div class="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
-            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] animate-pulse">Syncing Telemetry</p>
+    <!-- Popular Models -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Popular Models</h4>
+        <div class="space-y-4">
+            <template x-for="model in popularModels" :key="model.type">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-8 w-8">
+                            <div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                <span class="text-xs font-medium text-indigo-700 dark:text-indigo-300"
+                                      x-text="model.name?.charAt(0) || '?'"></span>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white" x-text="model.name"></p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="model.type"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-900 dark:text-white" x-text="model.activity_count"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">activities</span>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Activity Trends Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Activity Trends</h4>
+        <div class="h-64">
+            <canvas id="activityTrendsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Activity Timeline -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Activity Timeline</h4>
+        <div class="space-y-3">
+            <template x-for="day in timeline" :key="day.date">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4 w-1/4">
+                        <div>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white" x-text="day.date"></span>
+                            <span class="ml-2 text-xs text-gray-500 dark:text-gray-400" x-text="day.day_name"></span>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex items-center space-x-4">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                            <div class="h-3 rounded-full transition-all duration-300 relative"
+                                 :class="day.count > 0 ? 'bg-blue-500' : 'bg-gray-400'"
+                                 :style="`width: ${Math.max(day.percentage, day.count === 0 ? 2 : 0)}%`">
+                                <span class="absolute -right-4 -top-6 text-xs font-medium text-gray-700 dark:text-gray-300"
+                                      x-text="day.count"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Empty state -->
+            <div x-show="!loading && timeline.length === 0" class="text-center py-8">
+                <p class="text-sm text-gray-500 dark:text-gray-400">No timeline data available</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div x-show="loading" class="text-center py-12">
+        <div class="inline-flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+            <svg class="animate-spin h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <span class="font-medium">Loading analytics...</span>
         </div>
     </div>
 </div>
@@ -250,24 +306,11 @@ document.addEventListener('alpine:init', () => {
             this.loadAnalytics();
         },
 
-        async loadAnalytics(filters = {}) {
+        async loadAnalytics() {
             try {
                 this.loading = true;
                 let url = '{{ route("spatie-activitylog-ui.api.analytics") }}';
                 let params = new URLSearchParams();
-
-                Object.entries(filters).forEach(([key, value]) => {
-                    if (value === null || value === undefined || value === '') {
-                        return;
-                    }
-
-                    if (Array.isArray(value)) {
-                        value.forEach((item) => params.append(`${key}[]`, item));
-                        return;
-                    }
-
-                    params.append(key, value);
-                });
 
                 if (this.selectedPeriod === 'custom') {
                     if (this.customStartDate) params.append('start_date', this.customStartDate);
@@ -288,34 +331,27 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const data = await response.json();
 
-                if (!data.success) {
-                    throw new Error(data.message || 'Analytics request failed');
-                }
+                if (data.success) {
+                    this.stats = {
+                        total: data.data.total_activities,
+                        today: data.data.activities_today,
+                        activities_this_week: data.data.activities_this_week,
+                        activities_this_month: data.data.activities_this_month
+                    };
 
-                this.stats = {
-                    total: data.data.total_activities ?? 0,
-                    today: data.data.activities_today ?? 0,
-                    activities_this_week: data.data.activities_this_week ?? 0,
-                    activities_this_month: data.data.activities_this_month ?? 0
-                };
+                    this.eventTypes = data.data.event_types;
+                    this.topUsers = data.data.top_users;
+                    this.timeline = data.data.timeline;
+                    this.popularModels = data.data.popular_models;
+                    this.activityTrends = data.data.activity_trends;
 
-                this.eventTypes = data.data.event_types ?? [];
-                this.topUsers = data.data.top_users ?? [];
-                this.timeline = data.data.timeline ?? [];
-                this.popularModels = data.data.popular_models ?? [];
-                this.activityTrends = data.data.activity_trends ?? { dates: [], datasets: [] };
-
-                if (this.activityTrends && document.getElementById('activityTrendsChart')) {
-                    try {
+                    if (this.activityTrends && document.getElementById('activityTrendsChart')) {
                         this.initActivityTrendsChart();
-                    } catch (chartError) {
-                        console.error('Error initializing analytics chart:', chartError);
                     }
                 }
             } catch (error) {
@@ -332,47 +368,25 @@ document.addEventListener('alpine:init', () => {
             const canvas = document.getElementById('activityTrendsChart');
             if (!canvas) return;
 
+            // Destroy existing chart if it exists
             if (this.chart instanceof Chart) {
                 this.chart.destroy();
             }
 
             const ctx = canvas.getContext('2d');
-            const isDark = document.documentElement.classList.contains('dark');
-            const primaryColor = isDark ? '#2dd4bf' : '#0f766e';
-            const gridColor = isDark ? 'rgba(51, 65, 85, 0.45)' : 'rgba(203, 213, 225, 0.6)';
-            const textColor = isDark ? '#94a3b8' : '#64748b';
 
             this.chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: this.activityTrends.dates,
-                    datasets: this.activityTrends.datasets.map((dataset, idx) => {
-                        const colors = ['#0f766e', '#10b981', '#0284c7', '#f59e0b', '#e11d48', '#7c3aed'];
-                        const color = colors[idx % colors.length];
-                        
-                        return {
-                            label: dataset.label.toUpperCase(),
-                            data: dataset.data.map(d => d.count),
-                            borderColor: color,
-                            backgroundColor: (context) => {
-                                const chart = context.chart;
-                                const {ctx, chartArea} = chart;
-                                if (!chartArea) return null;
-                                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-                                gradient.addColorStop(0, `${color}00`);
-                                gradient.addColorStop(1, `${color}20`);
-                                return gradient;
-                            },
-                            borderWidth: 3,
-                            pointRadius: 0,
-                            pointHoverRadius: 6,
-                            pointHoverBackgroundColor: color,
-                            pointHoverBorderColor: '#fff',
-                            pointHoverBorderWidth: 3,
-                            tension: 0.4,
-                            fill: true,
-                        };
-                    })
+                    datasets: this.activityTrends.datasets.map(dataset => ({
+                        label: dataset.label,
+                        data: dataset.data.map(d => d.count),
+                        borderColor: dataset.color,
+                        backgroundColor: `${dataset.color}20`,
+                        tension: 0.4,
+                        fill: true
+                    }))
                 },
                 options: {
                     responsive: true,
@@ -383,80 +397,19 @@ document.addEventListener('alpine:init', () => {
                     },
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'top',
-                            align: 'end',
-                            labels: {
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                                padding: 20,
-                                font: {
-                                    family: "'Inter', sans-serif",
-                                    size: 10,
-                                    weight: '900'
-                                },
-                                color: textColor,
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: isDark ? '#18181b' : '#fff',
-                            titleColor: isDark ? '#fff' : '#18181b',
-                            bodyColor: isDark ? '#d4d4d8' : '#71717a',
-                            borderColor: isDark ? '#27272a' : '#e4e4e7',
-                            borderWidth: 1,
-                            padding: 12,
-                            cornerRadius: 12,
-                            displayColors: true,
-                            usePointStyle: true,
-                            titleFont: {
-                                family: "'Inter', sans-serif",
-                                size: 11,
-                                weight: '900'
-                            },
-                            bodyFont: {
-                                family: "'Inter', sans-serif",
-                                size: 10,
-                                weight: '500'
-                            }
+                            position: 'top'
                         }
                     },
                     scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                font: {
-                                    family: "'Inter', sans-serif",
-                                    size: 9,
-                                    weight: '700'
-                                },
-                                color: textColor,
-                                padding: 10
-                            }
-                        },
                         y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: gridColor,
-                                drawBorder: false,
-                            },
-                            ticks: {
-                                stepSize: 10,
-                                font: {
-                                    family: "'Inter', sans-serif",
-                                    size: 9,
-                                    weight: '700'
-                                },
-                                color: textColor,
-                                padding: 10
-                            }
+                            beginAtZero: true
                         }
                     }
                 }
             });
         },
 
+        // Cleanup method
         destroy() {
             if (this.chart instanceof Chart) {
                 this.chart.destroy();
@@ -466,3 +419,28 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 </script>
+
+<style>
+/* Enhanced analytics dashboard styling */
+.analytics-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.analytics-card:hover {
+    transform: translateY(-1px);
+}
+
+/* Dark mode chart adjustments */
+.dark canvas {
+    filter: brightness(0.9);
+}
+
+/* Enhanced user list styling */
+.user-item {
+    transition: all 0.15s ease-in-out;
+}
+
+.user-item:hover {
+    transform: translateX(2px);
+}
+</style>

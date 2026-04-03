@@ -1,65 +1,107 @@
 <!-- Filter Panel Component -->
 <div x-data="filterPanel()"
-     x-init="init()"
+     x-init="init();
+         $watch('filters.date_preset', value => {
+             localStorage.setItem('activitylog_date_preset', value);
+         });
+         $watch('filters.start_date', value => {
+             localStorage.setItem('activitylog_start_date', value || '');
+         });
+         $watch('filters.end_date', value => {
+             localStorage.setItem('activitylog_end_date', value || '');
+         });
+         $watch('filters.search', value => {
+             localStorage.setItem('activitylog_search', value || '');
+         });
+         $watch('filters.event_types', value => {
+             localStorage.setItem('activitylog_event_types', JSON.stringify(value || []));
+         });
+         $watch('filters.causer_id', value => {
+             localStorage.setItem('activitylog_causer_id', value || '');
+         });
+         $watch('filters.subject_type', value => {
+             localStorage.setItem('activitylog_subject_type', value || '');
+         });
+         $watch('selectedCauser', value => {
+             localStorage.setItem('activitylog_selected_causer', JSON.stringify(value || null));
+         });"
      @clear-filters.window="clearAllFilters()"
-     class="overflow-hidden rounded-3xl border border-slate-200 bg-white/92 shadow-soft transition-all duration-300 dark:border-slate-800 dark:bg-slate-900/88">
+     class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between border-b border-slate-200 bg-stone-50/85 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/35">
-        <div class="flex items-center space-x-2.5">
-            <div class="rounded-lg bg-teal-50 p-1.5 dark:bg-teal-950/30">
-                <svg class="h-4 w-4 text-teal-700 dark:text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
-                </svg>
+    <!-- Delete Confirmation Modal -->
+    <div x-data="{ showDeleteModal: false, viewToDelete: null }"
+         x-show="showDeleteModal"
+         @delete-view.window="viewToDelete = $event.detail; showDeleteModal = true"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         x-cloak>
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div x-show="showDeleteModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 transition-opacity"
+                 aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
             </div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Filters</h3>
-            <span x-show="hasActiveFilters" x-cloak
-                  class="flex h-2 w-2 animate-pulse rounded-full bg-teal-500"></span>
-        </div>
 
-        <div class="flex items-center space-x-1">
-            <!-- Saved Views Dropdown -->
-            @if(config('spatie-activitylog-ui.features.saved_views', true))
-            <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open" 
-                        class="rounded-lg p-1.5 text-slate-400 transition-all hover:bg-white hover:text-teal-700 dark:hover:bg-slate-800 dark:hover:text-teal-300"
-                        title="Saved Views">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                    </svg>
-                </button>
-                <div x-show="open" x-cloak @click.away="open = false" 
-                     class="glass absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-2xl border shadow-xl">
-                    <div class="p-2 space-y-1">
-                        <template x-for="view in savedViews" :key="view.id">
-                            <div class="flex items-center group">
-                                <button @click="loadSavedView(view); open = false" 
-                                        class="flex-1 rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-teal-50 dark:text-slate-300 dark:hover:bg-teal-950/20"
-                                        x-text="view.name"></button>
-                                <button @click.stop="$dispatch('delete-view', view.id)" 
-                                        class="p-2 text-zinc-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
+            <!-- Modal panel -->
+            <div x-show="showDeleteModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                                Delete Saved View
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Are you sure you want to delete this saved view? This action cannot be undone.
+                                </p>
                             </div>
-                        </template>
-                                <button @click="showSaveViewModal(); open = false" 
-                                class="w-full rounded-lg border border-dashed border-teal-200 px-3 py-2 text-left text-xs font-bold text-teal-700 hover:bg-teal-50 dark:border-teal-800/50 dark:text-teal-300 dark:hover:bg-teal-950/20">
-                            + Save This View
-                        </button>
+                        </div>
                     </div>
                 </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button @click="deleteSavedView(viewToDelete); showDeleteModal = false; viewToDelete = null"
+                            type="button"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Delete
+                    </button>
+                    <button @click="showDeleteModal = false; viewToDelete = null"
+                            type="button"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
             </div>
-            @endif
-
-            <button @click="clearAllFilters()" :disabled="!hasActiveFilters"
-                    class="rounded-lg p-1.5 text-slate-400 transition-all hover:bg-white hover:text-rose-500 disabled:opacity-30 dark:hover:bg-slate-800"
-                    title="Clear All">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
         </div>
     </div>
+
+    <!-- Header -->
+    <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between min-w-0">
+            <div class="flex items-center space-x-2">
+                <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white flex-shrink-0">Filters</h3>
+                <span x-show="hasActiveFilters"
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    Active
+                </span>
+            </div>
 
             <!-- Ultra Compact Button Group (md to lg) - MacBook Pro 13" -->
             <div class="hidden md:flex lg:hidden items-center space-x-0.5">
@@ -466,57 +508,24 @@
             </label>
             <div class="relative">
                 <input type="text"
-    <div class="p-5 space-y-6">
-        <!-- Search Section -->
-        <div class="space-y-2">
-            <label for="search" class="pl-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Global Search</label>
-            <div class="relative group">
+                       id="search"
+                       x-model="filters.search"
+                       @input.debounce.300ms="applyFilters()"
+                       placeholder="Search activities, users, descriptions..."
+                       class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-slate-400 transition-colors group-focus-within:text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
-                <input type="text" id="search" x-model="filters.search" @input.debounce.500ms="applyFilters()"
-                       placeholder="Search by ID, properties..."
-                       class="block w-full rounded-2xl border border-slate-200 bg-stone-50 py-2.5 pl-10 pr-3 text-sm shadow-inner-soft transition-all placeholder:text-slate-400 focus:border-teal-400 focus:ring-2 focus:ring-teal-500/15 dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-100 dark:placeholder:text-slate-600">
             </div>
-        </div>
-
-        <!-- Date Range Section -->
-        <div class="space-y-3">
-            <label class="pl-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Time Horizon</label>
-            <div class="grid grid-cols-2 gap-2">
-                <template x-for="preset in datePresets" :key="preset.value">
-                    <button @click="setDatePreset(preset.value)"
-                            :class="filters.date_preset === preset.value 
-                                ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/20 border-teal-500' 
-                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-slate-600'"
-                            class="px-3 py-2 text-xs font-bold rounded-xl border transition-all duration-200 text-center"
-                            x-text="preset.label"></button>
-                </template>
-            </div>
-
-            <!-- Custom Date Range -->
-            <div x-show="filters.date_preset === 'custom'" x-collapse class="pt-2 space-y-3">
-                <div class="grid grid-cols-1 gap-3">
-                    <div class="space-y-1">
-                        <span class="ml-1 text-[10px] font-bold uppercase text-slate-400">From</span>
-                        <input type="date" x-model="filters.start_date" @change="applyFilters()"
-                               class="block w-full rounded-xl border border-slate-200 bg-stone-50 px-3 py-2 text-xs focus:ring-2 focus:ring-teal-500/15 dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-100">
-                    </div>
-                    <div class="space-y-1">
-                        <span class="ml-1 text-[10px] font-bold uppercase text-slate-400">To</span>
-                        <input type="date" x-model="filters.end_date" @change="applyFilters()"
-                               class="block w-full rounded-xl border border-slate-200 bg-stone-50 px-3 py-2 text-xs focus:ring-2 focus:ring-teal-500/15 dark:border-slate-700/50 dark:bg-slate-800/50 dark:text-slate-100">
-                    </div>
-                </div>
-            </div>
-        </div></div>
         </div>
 
         <!-- Filter Grid -->
         <div class="grid grid-cols-1 gap-4 sm:gap-6">
 
+            <!-- Date Range -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date Range
@@ -605,6 +614,41 @@
                          x-cloak
                          @click.away="open = false"
                          x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 overflow-auto focus:outline-none sm:text-sm">
+
+                        <!-- Search within users -->
+                        <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                            <input type="text"
+                                   x-model="causerSearch"
+                                   @input.debounce.300ms="searchCausers()"
+                                   placeholder="Search users..."
+                                   class="block w-full px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <button @click="selectCauser(null); open = false"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            All users
+                        </button>
+
+                        <template x-for="causer in filteredCausers" :key="causer.id">
+                            <button @click="selectCauser(causer); open = false"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <div class="flex flex-col">
+                                    <span x-text="causer.name"></span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400" x-text="causer.email"></span>
+                            </div>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            </div>
+
         </div>
 
         <!-- Advanced Filters Toggle -->
