@@ -10,40 +10,38 @@ class ActivityCompatibilityTest extends TestCase
     public function test_it_normalizes_standard_spatie_change_payloads(): void
     {
         $activity = new Activity();
-        $activity->setAttribute('properties', new Collection([
+        $activity->setAttribute('attribute_changes', new Collection([
             'attributes' => ['name' => 'New name'],
             'old' => ['name' => 'Old name'],
         ]));
 
         $this->assertSame([
-            'old' => ['name' => 'Old name'],
             'attributes' => ['name' => 'New name'],
-        ], $activity->attribute_changes);
+            'old' => ['name' => 'Old name'],
+        ], $activity->attribute_changes->toArray());
 
         $this->assertTrue($activity->hasPropertyChanges());
         $this->assertSame('Changed name', $activity->getChangesSummary());
     }
 
-    public function test_it_normalizes_legacy_nested_attribute_changes_payloads(): void
+    public function test_it_prefers_v5_attribute_changes_over_properties(): void
     {
         $activity = new Activity();
-        $activity->setAttribute('properties', [
-            'attribute_changes' => [
-                'attributes' => ['status' => 'published'],
-                'old' => ['status' => 'draft'],
-            ],
+        $activity->setAttribute('attribute_changes', [
+            'attributes' => ['status' => 'approved'],
+            'old' => ['status' => 'pending'],
         ]);
 
         $this->assertSame([
-            'old' => ['status' => 'draft'],
-            'attributes' => ['status' => 'published'],
-        ], $activity->attribute_changes);
+            'attributes' => ['status' => 'approved'],
+            'old' => ['status' => 'pending'],
+        ], $activity->attribute_changes->toArray());
     }
 
     public function test_it_appends_attribute_changes_when_serialized(): void
     {
         $activity = new Activity();
-        $activity->setAttribute('properties', [
+        $activity->setAttribute('attribute_changes', [
             'attributes' => ['email' => 'new@example.com'],
             'old' => ['email' => 'old@example.com'],
         ]);

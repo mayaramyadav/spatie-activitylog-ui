@@ -116,13 +116,23 @@
                             start_date: '',
                             end_date: '',
                             event_types: [],
+                            causer_type: '',
                             causer_id: null,
                             subject_type: '',
                         };
                     },
 
                     // Filter state
-                    filters: this.defaultFilters(),
+                    filters: {
+                        search: '',
+                        date_preset: 'all',
+                        start_date: '',
+                        end_date: '',
+                        event_types: [],
+                        causer_type: '',
+                        causer_id: null,
+                        subject_type: '',
+                    },
 
                     // Data
                     @if(config('spatie-activitylog-ui.features.saved_views', true))
@@ -161,8 +171,15 @@
                         // Restore persisted state
                         this.restorePersistedState();
 
-                        await this.loadCausers();
-                        this.filteredCausers = this.availableCausers;
+                        this.availableCausers = this.normalizeCausers(this.availableCausers);
+                        this.filteredCausers = [...this.availableCausers];
+
+                        if (this.availableCausers.length === 0 && this.availableSubjectTypes.length === 0 && this.availableEventTypes.length === 0) {
+                            await this.loadCausers();
+                        }
+
+                        this.syncSelectedCauser();
+                        this.filteredCausers = [...this.availableCausers];
 
                         // Emit event that filter panel is ready with initial filters
                         window.dispatchEvent(new CustomEvent('filter-panel-ready', {
@@ -183,12 +200,13 @@
 
                             if (response.ok) {
                                 const data = await response.json();
-                                this.availableCausers = data.causers || [];
+                                this.availableCausers = this.normalizeCausers(data.causers || []);
                                 this.availableSubjectTypes = data.subject_types || this.availableSubjectTypes;
 
                                 // Process event types with dynamic styling
                                 if (data.event_types) {
                                     this.availableEventTypes = data.event_types.map(eventType => {
+                                        
                                         return {
                                             value: eventType.value,
                                             label: eventType.label,
@@ -201,7 +219,8 @@
                                 throw new Error('Failed to load filter options');
                             }
 
-                            this.filteredCausers = this.availableCausers;
+                            this.syncSelectedCauser();
+                            this.filteredCausers = [...this.availableCausers];
                         } catch (error) {
                             if (window.notify) {
                                 window.notify.error('Error', 'Failed to load filter options');
@@ -219,21 +238,50 @@
                         }
                     },
 
+                    normalizeCausers(causers) {
+                        const items = Array.isArray(causers) ? causers : Object.values(causers || {});
+
+                        return items
+                            .filter(causer => causer && typeof causer === 'object')
+                            .map(causer => ({
+                                id: causer.id ?? null,
+                                type: causer.type ?? '',
+                                name: causer.name ?? causer.label ?? 'Unknown User',
+                                email: causer.email ?? '',
+                                label: causer.label ?? causer.name ?? 'Unknown User',
+                            }))
+                            .filter(causer => causer.id !== null && causer.type !== '')
+                            .sort((left, right) => left.label.localeCompare(right.label));
+                    },
+
+                    syncSelectedCauser() {
+                        if (!this.filters.causer_id || !this.filters.causer_type) {
+                            this.selectedCauser = null;
+                            return;
+                        }
+
+                        this.selectedCauser = this.availableCausers.find(causer =>
+                            String(causer.id) === String(this.filters.causer_id) &&
+                            causer.type === this.filters.causer_type
+                        ) || null;
+                    },
+
                     searchCausers() {
                         if (!this.causerSearch) {
-                            this.filteredCausers = this.availableCausers;
+                            this.filteredCausers = [...this.availableCausers];
                             return;
                         }
 
                         const search = this.causerSearch.toLowerCase();
                         this.filteredCausers = this.availableCausers.filter(causer =>
-                            causer.name.toLowerCase().includes(search) ||
-                            causer.email.toLowerCase().includes(search)
+                            (causer.name || '').toLowerCase().includes(search) ||
+                            (causer.email || '').toLowerCase().includes(search)
                         );
                     },
 
                     selectCauser(causer) {
                         this.selectedCauser = causer;
+                        this.filters.causer_type = causer?.type || '';
                         this.filters.causer_id = causer?.id || null;
                         this.applyFilters();
                     },
@@ -319,6 +367,7 @@
                         localStorage.removeItem('activitylog_end_date');
                         localStorage.removeItem('activitylog_search');
                         localStorage.removeItem('activitylog_event_types');
+                        localStorage.removeItem('activitylog_causer_type');
                         localStorage.removeItem('activitylog_causer_id');
                         localStorage.removeItem('activitylog_subject_type');
                         localStorage.removeItem('activitylog_selected_causer');
@@ -335,6 +384,7 @@
                             ...this.defaultFilters(),
                             ...(view.filters || {}),
                         };
+                        this.syncSelectedCauser();
                         this.applyFilters();
                         if (window.notify) {
                             window.notify.success('View Loaded', `Loaded "${view.name}" view`);
@@ -357,6 +407,7 @@
                         const savedEndDate = localStorage.getItem('activitylog_end_date');
                         const savedSearch = localStorage.getItem('activitylog_search');
                         const savedEventTypes = localStorage.getItem('activitylog_event_types');
+                        const savedCauserType = localStorage.getItem('activitylog_causer_type');
                         const savedCauserId = localStorage.getItem('activitylog_causer_id');
                         const savedSubjectType = localStorage.getItem('activitylog_subject_type');
                         const savedSelectedCauser = localStorage.getItem('activitylog_selected_causer');
@@ -366,6 +417,7 @@
                         if (savedEndDate) this.filters.end_date = savedEndDate;
                         if (savedSearch) this.filters.search = savedSearch;
                         if (savedSubjectType) this.filters.subject_type = savedSubjectType;
+                        if (savedCauserType) this.filters.causer_type = savedCauserType;
                         if (savedCauserId) this.filters.causer_id = savedCauserId ? parseInt(savedCauserId) : null;
 
                         if (savedEventTypes) {
@@ -382,6 +434,10 @@
                             } catch (e) {
                                 this.selectedCauser = null;
                             }
+                        }
+
+                        if (this.selectedCauser && !this.filters.causer_type) {
+                            this.filters.causer_type = this.selectedCauser.type || '';
                         }
                     },
 

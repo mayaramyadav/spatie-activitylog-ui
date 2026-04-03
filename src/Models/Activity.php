@@ -4,7 +4,6 @@ namespace Mayaram\SpatieActivitylogUi\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity as SpatieActivity;
@@ -15,16 +14,10 @@ class Activity extends SpatieActivity
      * The attributes that should be cast.
      */
     protected $casts = [
+        'attribute_changes' => 'collection',
         'properties' => 'collection',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-    ];
-
-    /**
-     * Keep legacy UI keys available when serializing models.
-     */
-    protected $appends = [
-        'attribute_changes',
     ];
 
     /**
@@ -130,6 +123,7 @@ class Activity extends SpatieActivity
 
         return $query->where(function (Builder $q) use ($search) {
             $q->where('description', 'like', "%{$search}%")
+              ->orWhere('attribute_changes', 'like', "%{$search}%")
               ->orWhere('properties', 'like', "%{$search}%")
               ->orWhereHas('causer', function (Builder $causerQuery) use ($search) {
                   $causerQuery->where('name', 'like', "%{$search}%")
@@ -171,7 +165,7 @@ class Activity extends SpatieActivity
      */
     public function getFormattedChangesAttribute(): array
     {
-        $changesData = $this->getNormalizedAttributeChanges();
+        $changesData = $this->normalizeChanges($this->attribute_changes);
         $changes = [];
 
         if (isset($changesData['old'], $changesData['attributes'])) {
@@ -221,17 +215,9 @@ class Activity extends SpatieActivity
      */
     public function hasPropertyChanges(): bool
     {
-        $changesData = $this->getNormalizedAttributeChanges();
+        $changesData = $this->normalizeChanges($this->attribute_changes);
 
         return isset($changesData['old']) && isset($changesData['attributes']);
-    }
-
-    /**
-     * Preserve the legacy attribute name expected by the UI.
-     */
-    public function getAttributeChangesAttribute(): array
-    {
-        return $this->getNormalizedAttributeChanges();
     }
 
     /**
@@ -285,58 +271,18 @@ class Activity extends SpatieActivity
         };
     }
 
-    /**
-     * Normalize Spatie v4/v5 properties into the legacy change payload used by this UI.
-     */
-    protected function getNormalizedAttributeChanges(): array
+    protected function normalizeChanges(mixed $changes): array
     {
-        $properties = $this->normalizeProperties($this->properties ?? null);
-
-        if (isset($properties['old']) || isset($properties['attributes'])) {
-            return [
-                'old' => Arr::get($properties, 'old', []),
-                'attributes' => Arr::get($properties, 'attributes', []),
-            ];
+        if ($changes instanceof Collection) {
+            return $changes->toArray();
         }
 
-        $legacyChanges = Arr::get($properties, 'attribute_changes');
-
-        if (is_array($legacyChanges)) {
-            return [
-                'old' => Arr::get($legacyChanges, 'old', []),
-                'attributes' => Arr::get($legacyChanges, 'attributes', []),
-            ];
+        if (is_array($changes)) {
+            return $changes;
         }
 
-        if (method_exists($this, 'changes')) {
-            $changes = $this->changes();
-
-            if (is_array($changes) && (isset($changes['old']) || isset($changes['attributes']))) {
-                return [
-                    'old' => Arr::get($changes, 'old', []),
-                    'attributes' => Arr::get($changes, 'attributes', []),
-                ];
-            }
-        }
-
-        return [];
-    }
-
-    /**
-     * Convert the stored properties payload into a predictable array.
-     */
-    protected function normalizeProperties(mixed $properties): array
-    {
-        if ($properties instanceof Collection) {
-            return $properties->toArray();
-        }
-
-        if (is_array($properties)) {
-            return $properties;
-        }
-
-        if ($properties instanceof \ArrayAccess) {
-            return (array) $properties;
+        if ($changes instanceof \ArrayAccess) {
+            return (array) $changes;
         }
 
         return [];

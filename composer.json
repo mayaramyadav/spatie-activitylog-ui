@@ -39,16 +39,16 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "spatie/laravel-activitylog": "^5.0",
-        "illuminate/contracts": "^11.0|^12.0|^13.0"
+        "illuminate/contracts": "^12.0|^13.0"
     },
     "suggest": {
         "maatwebsite/excel": "Required for exporting activity logs to XLSX format.",
         "barryvdh/laravel-dompdf": "Required for exporting activity logs to PDF format."
     },
     "require-dev": {
-        "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+        "orchestra/testbench": "^10.0|^11.0",
         "phpunit/phpunit": "^10.1|^11.0|^12.0"
     },
     "autoload": {

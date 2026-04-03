@@ -41,7 +41,9 @@ class ActivityLogAccessMiddleware
         }
 
         // Authorization is enabled - check gate authorization
-        if (Gate::denies('viewActivityLogUi')) {
+        $gate = config('spatie-activitylog-ui.authorization.gate', 'viewActivityLogUi');
+
+        if (Gate::denies($gate)) {
             abort(403, 'Unauthorized access to Activity Log UI.');
         }
 

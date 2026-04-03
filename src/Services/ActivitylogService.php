@@ -76,7 +76,11 @@ class ActivitylogService
         if (!empty($filters['property_key'])) {
             $propertyKey = addcslashes($filters['property_key'], '%_');
 
-            $query->where('properties', 'like', '%"'.$propertyKey.'"%');
+            $query->where(function (Builder $propertyQuery) use ($propertyKey) {
+                $propertyQuery
+                    ->where('properties', 'like', '%"'.$propertyKey.'"%')
+                    ->orWhere('attribute_changes', 'like', '%"'.$propertyKey.'"%');
+            });
         }
 
         return $query;
@@ -165,10 +169,12 @@ class ActivitylogService
                         'id' => $activity->causer_id,
                         'type' => $activity->causer_type,
                         'name' => $activity->causer_name,
+                        'email' => $activity->causer->email ?? null,
                         'label' => $activity->causer_name . ' (' . class_basename($activity->causer_type) . ')',
                     ];
                 })
-                ->unique('id')
+                ->unique(fn (array $causer) => ($causer['type'] ?? '') . ':' . ($causer['id'] ?? ''))
+                ->sortBy('label')
                 ->values();
         }));
     }
@@ -457,7 +463,7 @@ class ActivitylogService
                     'type' => $activity->causer_type,
                 ];
             })
-            ->unique('id')
+            ->unique(fn (array $causer) => ($causer['type'] ?? '') . ':' . ($causer['id'] ?? ''))
             ->values()
             ->toArray(),
         ];
@@ -543,18 +549,31 @@ class ActivitylogService
             $causers = Activity::whereNotNull('causer_id')
                 ->with('causer')
                 ->get()
-                ->pluck('causer')
+                ->map(function ($activity) {
+                    if (!$activity->causer) {
+                        return null;
+                    }
+
+                    return [
+                        'id' => $activity->causer_id,
+                        'type' => $activity->causer_type,
+                        'name' => $activity->causer->name ?? $activity->causer->email ?? 'Unknown',
+                        'email' => $activity->causer->email ?? '',
+                    ];
+                })
                 ->filter()
-                ->unique('id')
+                ->unique(fn (array $causer) => ($causer['type'] ?? '') . ':' . ($causer['id'] ?? ''))
                 ->filter(function ($causer) use ($query) {
-                    return stripos($causer->name ?? '', $query) !== false ||
-                           stripos($causer->email ?? '', $query) !== false;
+                    return stripos($causer['name'] ?? '', $query) !== false ||
+                           stripos($causer['email'] ?? '', $query) !== false;
                 })
                 ->take(5)
                 ->map(function ($causer) {
                     return [
-                        'value' => $causer->name,
-                        'label' => $causer->name . ' (' . $causer->email . ')',
+                        'value' => $causer['name'],
+                        'label' => $causer['email']
+                            ? $causer['name'] . ' (' . $causer['email'] . ')'
+                            : $causer['name'],
                         'type' => 'User'
                     ];
                 });

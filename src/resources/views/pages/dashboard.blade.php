@@ -207,6 +207,7 @@ function activityDashboard() {
                 const params = new URLSearchParams();
                 params.append('page', page);
                 params.append('per_page', this.perPage);
+                params.append('view', this.currentView);
 
                 // Add filters to params
                 Object.keys(this.currentFilters).forEach(key => {
@@ -238,14 +239,12 @@ function activityDashboard() {
                 }
 
                 const result = await response.json();
+                const normalized = this.normalizeActivitiesResponse(result);
 
-                this.activities = result.data || [];
-                this.totalActivities = result.total || 0;
-                this.totalPages = result.last_page || 1;
-
-                if (window.notify) {
-                    window.notify.success('Success', `Loaded ${this.activities.length} activities`);
-                }
+                this.activities = normalized.activities;
+                this.totalActivities = normalized.total;
+                this.totalPages = normalized.lastPage;
+                this.currentPage = normalized.currentPage;
 
             } catch (error) {
                 this.activities = [];
@@ -315,14 +314,6 @@ function activityDashboard() {
             return new Date(dateString).toLocaleString();
         },
 
-        truncateBatchUuid(batchUuid) {
-            if (!batchUuid || batchUuid.length <= 16) {
-                return batchUuid || '';
-            }
-
-            return `${batchUuid.slice(0, 8)}...${batchUuid.slice(-4)}`;
-        },
-
         // Load more activities for timeline view
         async loadMoreActivities() {
             if (this.currentView !== 'timeline' || this.loading || this.currentPage >= this.totalPages) {
@@ -338,6 +329,7 @@ function activityDashboard() {
                 const params = new URLSearchParams();
                 params.append('page', nextPage);
                 params.append('per_page', this.perPage);
+                params.append('view', this.currentView);
 
                 // Add filters to params
                 Object.keys(this.currentFilters).forEach(key => {
@@ -368,16 +360,15 @@ function activityDashboard() {
                 }
 
                 const result = await response.json();
+                const normalized = this.normalizeActivitiesResponse(result);
 
                 // Append new activities to existing ones for timeline view
-                if (result.data && result.data.length > 0) {
-                    this.activities = [...this.activities, ...result.data];
+                if (normalized.activities.length > 0) {
+                    this.activities = [...this.activities, ...normalized.activities];
                     this.currentPage = nextPage;
-                    this.totalPages = result.last_page || 1;
+                    this.totalPages = normalized.lastPage;
+                    this.totalActivities = normalized.total;
 
-                    if (window.notify) {
-                        window.notify.success('Success', `Loaded ${result.data.length} more activities`);
-                    }
                 }
 
             } catch (error) {
@@ -388,6 +379,54 @@ function activityDashboard() {
             } finally {
                 this.loading = false;
             }
+        },
+
+        normalizeActivitiesResponse(result) {
+            const fallback = {
+                activities: [],
+                total: 0,
+                currentPage: this.currentPage || 1,
+                lastPage: 1,
+            };
+
+            if (!result || typeof result !== 'object') {
+                return fallback;
+            }
+
+            // Current flat API shape
+            if (Array.isArray(result.data)) {
+                return {
+                    activities: result.data,
+                    total: result.total ?? result.data.length,
+                    currentPage: result.current_page ?? this.currentPage ?? 1,
+                    lastPage: result.last_page ?? 1,
+                };
+            }
+
+            // Older wrapped paginator shape: { success: true, data: { data: [...], total, ... } }
+            if (result.data && Array.isArray(result.data.data)) {
+                return {
+                    activities: result.data.data,
+                    total: result.data.total ?? result.data.data.length,
+                    currentPage: result.data.current_page ?? this.currentPage ?? 1,
+                    lastPage: result.data.last_page ?? 1,
+                };
+            }
+
+            // Older wrapped timeline shape: { success: true, data: { groups: [...], pagination: {...} } }
+            if (result.data && Array.isArray(result.data.groups)) {
+                const activities = result.data.groups.flatMap(group => group.activities || []);
+                const pagination = result.data.pagination || {};
+
+                return {
+                    activities,
+                    total: pagination.total ?? activities.length,
+                    currentPage: pagination.current_page ?? this.currentPage ?? 1,
+                    lastPage: pagination.last_page ?? 1,
+                };
+            }
+
+            return fallback;
         },
 
         // Smart view switching with context preservation

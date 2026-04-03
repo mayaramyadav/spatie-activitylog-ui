@@ -75,6 +75,10 @@ class AnalyticsService
             $query->whereIn('event', $filters['event_types']);
         }
 
+        if (!empty($filters['causer_type'])) {
+            $query->where('causer_type', $filters['causer_type']);
+        }
+
         if (!empty($filters['causer_id'])) {
             $causerId = is_string($filters['causer_id']) ? (int) $filters['causer_id'] : $filters['causer_id'];
             $query->where('causer_id', $causerId);

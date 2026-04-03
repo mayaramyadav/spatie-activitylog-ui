@@ -191,6 +191,7 @@ class ExportService
                     'subject_id' => $activity->subject_id,
                     'causer_type' => $activity->causer_type,
                     'causer_id' => $activity->causer_id,
+                    'attribute_changes' => $activity->attribute_changes,
                     'properties' => $activity->properties,
                     'created_at' => $activity->created_at->toISOString(),
                     'causer_name' => $activity->causer_name,

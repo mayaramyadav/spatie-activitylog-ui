@@ -1,6 +1,17 @@
 <!-- Filter Panel Component -->
 <div x-data="filterPanel()"
-     x-init="init();
+     x-init="availableCausers = @js(collect($filterOptions['causers'] ?? [])->values()->all());
+         availableSubjectTypes = @js(collect($filterOptions['subject_types'] ?? [])->values()->all());
+         availableEventTypes = @js(collect($filterOptions['event_types'] ?? [])->values()->map(fn($eventType) => [
+             'value' => $eventType['value'] ?? null,
+             'label' => $eventType['label'] ?? null,
+             'color' => isset($eventType['colors']['primary'])
+                 ? 'bg-' . $eventType['colors']['primary'] . '-500'
+                 : 'bg-gray-500',
+             'styling' => $eventType,
+         ])->all());
+         filteredCausers = availableCausers;
+         init();
          $watch('filters.date_preset', value => {
              localStorage.setItem('activitylog_date_preset', value);
          });
@@ -15,6 +26,9 @@
          });
          $watch('filters.event_types', value => {
              localStorage.setItem('activitylog_event_types', JSON.stringify(value || []));
+         });
+         $watch('filters.causer_type', value => {
+             localStorage.setItem('activitylog_causer_type', value || '');
          });
          $watch('filters.causer_id', value => {
              localStorage.setItem('activitylog_causer_id', value || '');
@@ -94,11 +108,11 @@
 
     <!-- Header -->
     <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between min-w-0">
-            <div class="flex items-center space-x-2">
+        <div class="flex flex-wrap items-center justify-between gap-3 min-w-0">
+            <div class="flex items-center gap-2 min-w-0">
                 <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white flex-shrink-0">Filters</h3>
                 <span x-show="hasActiveFilters"
-                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                     Active
                 </span>
             </div>
@@ -497,9 +511,7 @@
     </div>
 
     <!-- Filter Content -->
-    <div x-show="expanded"
-         x-collapse
-         class="px-4 sm:px-6 py-4 space-y-4 sm:space-y-6">
+    <div class="px-4 sm:px-6 py-4 space-y-4 sm:space-y-6">
 
         <!-- Search -->
         <div>
@@ -573,7 +585,7 @@
             </div>
 
             <!-- Row for Event Types and Causer (side by side on larger screens) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
             <!-- Event Types -->
             <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -619,7 +631,7 @@
                          x-transition:leave="transition ease-in duration-75"
                          x-transition:leave-start="transform opacity-100 scale-100"
                          x-transition:leave-end="transform opacity-0 scale-95"
-                         class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 overflow-auto focus:outline-none sm:text-sm">
+                         class="absolute left-0 right-0 z-10 mt-1 bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 overflow-auto focus:outline-none sm:text-sm">
 
                         <!-- Search within users -->
                         <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
@@ -627,7 +639,7 @@
                                    x-model="causerSearch"
                                    @input.debounce.300ms="searchCausers()"
                                    placeholder="Search users..."
-                                   class="block w-full px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                                   class="block w-full min-w-0 px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
                         </div>
 
                         <button @click="selectCauser(null); open = false"
@@ -635,7 +647,7 @@
                             All users
                         </button>
 
-                        <template x-for="causer in filteredCausers" :key="causer.id">
+                        <template x-for="causer in filteredCausers" :key="`${causer.type || 'causer'}-${causer.id ?? causer.name}`">
                             <button @click="selectCauser(causer); open = false"
                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                 <div class="flex flex-col">

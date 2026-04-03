@@ -27,21 +27,29 @@
 
 ## 🗒️ Requirements
 
-* PHP 8.2 | 8.3 | 8.4 | 8.5
-* Laravel 10 | 11 | 12 | 13
-* [spatie/laravel-activitylog](https://github.com/spatie/laravel-activitylog) v4 or v5
+* PHP 8.4 | 8.5
+* Laravel 12 | 13
+* [spatie/laravel-activitylog](https://github.com/spatie/laravel-activitylog) v5
 * Database table `activity_log` with Spatie’s default columns
 
-### Supported matrix
+### Required activity_log structure
 
-| Laravel | PHP | Spatie activitylog |
-|---------|-----|--------------------|
-| 10.x | 8.2 - 8.5 | 4.x |
-| 11.x | 8.2 - 8.5 | 4.x |
-| 12.x | 8.2 - 8.5 with 4.x, 8.4 - 8.5 with 5.x | 4.x or 5.x |
-| 13.x | 8.4 - 8.5 | 5.x |
+This package supports the Spatie v5 schema only:
 
-Spatie activitylog v5 is handled through a compatibility layer in this package, but Composer will still enforce the upstream package's own minimum Laravel/PHP requirements for that version.
+| Column | Type |
+|--------|------|
+| `id` | `bigint unsigned` |
+| `log_name` | `varchar(255)` nullable |
+| `description` | `text` |
+| `subject_type` | `varchar(255)` nullable |
+| `subject_id` | `bigint unsigned` nullable |
+| `event` | `varchar(255)` nullable |
+| `causer_type` | `varchar(255)` nullable |
+| `causer_id` | `bigint unsigned` nullable |
+| `attribute_changes` | `json` nullable |
+| `properties` | `json` nullable |
+| `created_at` | `timestamp` nullable |
+| `updated_at` | `timestamp` nullable |
 
 ### Optional (for export)
 

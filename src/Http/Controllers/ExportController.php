@@ -26,7 +26,7 @@ class ExportController extends Controller
      */
     public function export(Request $request): JsonResponse
     {
-        $this->authorize('viewActivityLogUi');
+        $this->authorizeAccess();
 
         $request->validate([
             'format' => 'required|string|in:' . implode(',', config('spatie-activitylog-ui.exports.enabled_formats')),
@@ -118,7 +118,7 @@ class ExportController extends Controller
      */
     public function download(Request $request): BinaryFileResponse
     {
-        $this->authorize('viewActivityLogUi');
+        $this->authorizeAccess();
 
         $request->validate([
             'path' => 'required|string',
@@ -151,7 +151,7 @@ class ExportController extends Controller
      */
     public function progress(Request $request): JsonResponse
     {
-        $this->authorize('viewActivityLogUi');
+        $this->authorizeAccess();
 
         $request->validate([
             'job_id' => 'required|string',
@@ -171,7 +171,7 @@ class ExportController extends Controller
      */
     public function formats(): JsonResponse
     {
-        $this->authorize('viewActivityLogUi');
+        $this->authorizeAccess();
 
         $formats = config('spatie-activitylog-ui.exports.enabled_formats', []);
         $maxRecords = config('spatie-activitylog-ui.exports.max_records', 10000);
@@ -200,7 +200,7 @@ class ExportController extends Controller
      */
     public function cleanup(): JsonResponse
     {
-        $this->authorize('viewActivityLogUi');
+        $this->authorizeAccess();
 
         $deletedCount = $this->exportService->cleanupOldExports();
 
@@ -225,6 +225,16 @@ class ExportController extends Controller
             'json' => 'application/json',
             default => 'application/octet-stream',
         };
+    }
+
+    protected function authorizeAccess(): void
+    {
+        if (!config('spatie-activitylog-ui.authorization.enabled', true)) {
+            return;
+        }
+
+        $gate = config('spatie-activitylog-ui.authorization.gate', 'viewActivityLogUi');
+        abort_unless(request()->user()?->can($gate), 403);
     }
 
     /**

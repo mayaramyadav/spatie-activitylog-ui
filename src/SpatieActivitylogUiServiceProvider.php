@@ -7,13 +7,7 @@ use Illuminate\Support\ServiceProvider;
 
 class SpatieActivitylogUiServiceProvider extends ServiceProvider
 {
-    /**
-     * Package version.
-     */
-    public const VERSION = '1.3.0';
-    /**
-     * Register any application services.
-     */
+   
     public function register(): void
     {
         // Merge package configuration
@@ -40,7 +34,7 @@ class SpatieActivitylogUiServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
 
         // Define Gate for package access control
-        Gate::define('viewActivityLogUi', function ($user = null) {
+        Gate::define(config('spatie-activitylog-ui.authorization.gate', 'viewActivityLogUi'), function ($user = null) {
             // Check if user has permission to view activity log UI
             // You can customize this logic based on your needs
             if ($user === null) {
