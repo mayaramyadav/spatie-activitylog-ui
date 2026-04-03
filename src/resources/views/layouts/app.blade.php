@@ -172,9 +172,15 @@
                         this.restorePersistedState();
 
                         this.availableCausers = this.normalizeCausers(this.availableCausers);
+                        this.availableSubjectTypes = this.normalizeSubjectTypes(this.availableSubjectTypes);
+                        this.availableEventTypes = this.normalizeEventTypes(this.availableEventTypes);
                         this.filteredCausers = [...this.availableCausers];
 
-                        if (this.availableCausers.length === 0 && this.availableSubjectTypes.length === 0 && this.availableEventTypes.length === 0) {
+                        if (
+                            this.availableCausers.length === 0 ||
+                            this.availableSubjectTypes.length === 0 ||
+                            this.availableEventTypes.length === 0
+                        ) {
                             await this.loadCausers();
                         }
 
@@ -201,19 +207,10 @@
                             if (response.ok) {
                                 const data = await response.json();
                                 this.availableCausers = this.normalizeCausers(data.causers || []);
-                                this.availableSubjectTypes = data.subject_types || this.availableSubjectTypes;
+                                this.availableSubjectTypes = this.normalizeSubjectTypes(data.subject_types || this.availableSubjectTypes);
 
-                                // Process event types with dynamic styling
                                 if (data.event_types) {
-                                    this.availableEventTypes = data.event_types.map(eventType => {
-                                        
-                                        return {
-                                            value: eventType.value,
-                                            label: eventType.label,
-                                            color: `bg-${window.ActivityTypeStyler.getColor(eventType.value)}-500`,
-                                            styling: window.ActivityTypeStyler.getEventTypeStyling(eventType.value)
-                                        };
-                                    });
+                                    this.availableEventTypes = this.normalizeEventTypes(data.event_types);
                                 }
                             } else {
                                 throw new Error('Failed to load filter options');
@@ -229,12 +226,7 @@
                             // Set empty defaults
                             this.availableCausers = [];
                             this.filteredCausers = [];
-                            this.availableEventTypes = ['created', 'updated', 'deleted', 'restored'].map(eventType => ({
-                                value: eventType,
-                                label: eventType.charAt(0).toUpperCase() + eventType.slice(1),
-                                color: `bg-${window.ActivityTypeStyler.getColor(eventType)}-500`,
-                                styling: window.ActivityTypeStyler.getEventTypeStyling(eventType)
-                            }));
+                            this.availableEventTypes = this.normalizeEventTypes(['created', 'updated', 'deleted', 'restored']);
                         }
                     },
 
@@ -252,6 +244,86 @@
                             }))
                             .filter(causer => causer.id !== null && causer.type !== '')
                             .sort((left, right) => left.label.localeCompare(right.label));
+                    },
+
+                    normalizeSubjectTypes(subjectTypes) {
+                        const items = Array.isArray(subjectTypes) ? subjectTypes : Object.values(subjectTypes || {});
+
+                        return items
+                            .map(subjectType => {
+                                if (typeof subjectType === 'string' && subjectType.trim() !== '') {
+                                    const parts = subjectType.split('\\');
+                                    const label = parts[parts.length - 1] || subjectType;
+
+                                    return {
+                                        value: subjectType,
+                                        label,
+                                        full_name: subjectType,
+                                    };
+                                }
+
+                                if (subjectType && typeof subjectType === 'object') {
+                                    const value = subjectType.value ?? subjectType.full_name ?? null;
+
+                                    if (typeof value === 'string' && value.trim() !== '') {
+                                        const label = subjectType.label ?? value.split('\\').pop() ?? value;
+
+                                        return {
+                                            value,
+                                            label,
+                                            full_name: subjectType.full_name ?? value,
+                                        };
+                                    }
+                                }
+
+                                return null;
+                            })
+                            .filter(Boolean);
+                    },
+
+                    normalizeEventTypes(eventTypes) {
+                        const items = Array.isArray(eventTypes) ? eventTypes : Object.values(eventTypes || {});
+
+                        return items
+                            .map((eventType, index) => {
+                                if (typeof eventType === 'string' && eventType.trim() !== '') {
+                                    const styling = window.ActivityTypeStyler?.getEventTypeStyling?.(eventType) || {};
+
+                                    return {
+                                        value: eventType,
+                                        label: eventType.charAt(0).toUpperCase() + eventType.slice(1),
+                                        color: `bg-${window.ActivityTypeStyler?.getColor?.(eventType) || 'gray'}-500`,
+                                        styling,
+                                    };
+                                }
+
+                                if (eventType && typeof eventType === 'object') {
+                                    const value = eventType.value ?? eventType.event ?? null;
+
+                                    if (typeof value === 'string' && value.trim() !== '') {
+                                        const styling = eventType.styling
+                                            ?? window.ActivityTypeStyler?.getEventTypeStyling?.(value)
+                                            ?? {};
+                                        const primaryColor = eventType.colors?.primary
+                                            ?? styling.colors?.primary
+                                            ?? window.ActivityTypeStyler?.getColor?.(value)
+                                            ?? 'gray';
+
+                                        return {
+                                            value,
+                                            label: eventType.label ?? value.charAt(0).toUpperCase() + value.slice(1),
+                                            color: eventType.color ?? `bg-${primaryColor}-500`,
+                                            styling: {
+                                                ...styling,
+                                                ...eventType,
+                                            },
+                                        };
+                                    }
+                                }
+
+                                return null;
+                            })
+                            .filter(Boolean);
                     },
 
                     syncSelectedCauser() {

@@ -2,14 +2,7 @@
 <div x-data="filterPanel()"
      x-init="availableCausers = @js(collect($filterOptions['causers'] ?? [])->values()->all());
          availableSubjectTypes = @js(collect($filterOptions['subject_types'] ?? [])->values()->all());
-         availableEventTypes = @js(collect($filterOptions['event_types'] ?? [])->values()->map(fn($eventType) => [
-             'value' => $eventType['value'] ?? null,
-             'label' => $eventType['label'] ?? null,
-             'color' => isset($eventType['colors']['primary'])
-                 ? 'bg-' . $eventType['colors']['primary'] . '-500'
-                 : 'bg-gray-500',
-             'styling' => $eventType,
-         ])->all());
+         availableEventTypes = @js(collect($filterOptions['event_types'] ?? [])->values()->all());
          filteredCausers = availableCausers;
          init();
          $watch('filters.date_preset', value => {

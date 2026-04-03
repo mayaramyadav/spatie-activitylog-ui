@@ -209,7 +209,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.event_types';
 
-        return $this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
+        return $this->normalizeEventTypes($this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
             return Activity::select('event')
                 ->whereNotNull('event')
                 ->distinct()
@@ -221,7 +221,7 @@ class ActivitylogService
                     ];
                 })
                 ->values();
-        }));
+        })));
     }
 
     /**
@@ -231,7 +231,7 @@ class ActivitylogService
     {
         $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.event_types_with_styling';
 
-        return $this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
+        return $this->normalizeStyledEventTypes($this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
             $eventTypes = Activity::select('event')
                 ->whereNotNull('event')
                 ->distinct()
@@ -251,7 +251,7 @@ class ActivitylogService
                     'timeline_classes' => $styling['timeline_classes'],
                 ];
             });
-        }));
+        })));
     }
 
     /**
@@ -260,6 +260,81 @@ class ActivitylogService
     protected function ensureCollection(mixed $value): Collection
     {
         return $value instanceof Collection ? $value : collect($value);
+    }
+
+    protected function normalizeEventTypes(Collection $eventTypes): Collection
+    {
+        return $eventTypes
+            ->map(function ($eventType) {
+                if (is_string($eventType) && trim($eventType) !== '') {
+                    return [
+                        'value' => $eventType,
+                        'label' => ucfirst($eventType),
+                    ];
+                }
+
+                if (is_array($eventType) || $eventType instanceof \ArrayAccess) {
+                    $value = $eventType['value'] ?? null;
+                    $label = $eventType['label'] ?? null;
+
+                    if (is_string($value) && trim($value) !== '') {
+                        return [
+                            'value' => $value,
+                            'label' => is_string($label) && trim($label) !== '' ? $label : ucfirst($value),
+                        ];
+                    }
+                }
+
+                return null;
+            })
+            ->filter()
+            ->values();
+    }
+
+    protected function normalizeStyledEventTypes(Collection $eventTypes): Collection
+    {
+        return $eventTypes
+            ->map(function ($eventType, $index) {
+                if (is_string($eventType) && trim($eventType) !== '') {
+                    $styling = $this->generateEventTypeStyling($eventType, $index);
+
+                    return [
+                        'value' => $eventType,
+                        'label' => ucfirst($eventType),
+                        'colors' => $styling['colors'],
+                        'gradient' => $styling['gradient'],
+                        'icon' => $styling['icon'],
+                        'badge_classes' => $styling['badge_classes'],
+                        'timeline_classes' => $styling['timeline_classes'],
+                    ];
+                }
+
+                if (is_array($eventType) || $eventType instanceof \ArrayAccess) {
+                    $value = $eventType['value'] ?? null;
+
+                    if (! is_string($value) || trim($value) === '') {
+                        return null;
+                    }
+
+                    $styling = $this->generateEventTypeStyling($value, $index);
+
+                    return [
+                        'value' => $value,
+                        'label' => (is_string($eventType['label'] ?? null) && trim($eventType['label']) !== '')
+                            ? $eventType['label']
+                            : ucfirst($value),
+                        'colors' => is_array($eventType['colors'] ?? null) ? $eventType['colors'] : $styling['colors'],
+                        'gradient' => is_array($eventType['gradient'] ?? null) ? $eventType['gradient'] : $styling['gradient'],
+                        'icon' => $eventType['icon'] ?? $styling['icon'],
+                        'badge_classes' => $eventType['badge_classes'] ?? $styling['badge_classes'],
+                        'timeline_classes' => $eventType['timeline_classes'] ?? $styling['timeline_classes'],
+                    ];
+                }
+
+                return null;
+            })
+            ->filter()
+            ->values();
     }
 
     /**
