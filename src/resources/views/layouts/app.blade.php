@@ -547,8 +547,14 @@
                         try {
                             // Build URL with filters
                             const params = new URLSearchParams();
+                            const analyticsFilters = { ...this.currentFilters };
+
+                            delete analyticsFilters.start_date;
+                            delete analyticsFilters.end_date;
+                            delete analyticsFilters.date_preset;
 
                             if (this.selectedPeriod === 'custom') {
+                                params.append('period', 'custom');
                                 if (this.customStartDate) {
                                     params.append('start_date', this.customStartDate);
                                 }
@@ -557,7 +563,7 @@
                                     params.append('end_date', this.customEndDate);
                                 }
                             } else if (this.selectedPeriod === 'all') {
-                                // Leave analytics unbounded so it matches table/timeline defaults.
+                                params.append('period', 'all');
                             } else if (this.selectedPeriod === 'today') {
                                 params.append('period', 'today');
                             } else {
@@ -565,8 +571,8 @@
                             }
 
                             // Add filters to URL parameters
-                            Object.keys(this.currentFilters).forEach(key => {
-                                const value = this.currentFilters[key];
+                            Object.keys(analyticsFilters).forEach(key => {
+                                const value = analyticsFilters[key];
                                 if (value !== null && value !== '' && value !== undefined) {
                                     if (Array.isArray(value)) {
                                         value.forEach(item => params.append(`${key}[]`, item));

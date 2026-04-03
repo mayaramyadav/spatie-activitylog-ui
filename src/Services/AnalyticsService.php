@@ -11,6 +11,8 @@ use Mayaram\SpatieActivitylogUi\Models\Activity;
 
 class AnalyticsService
 {
+    protected const DEFAULT_MAX_ANALYTICS_RANGE_DAYS = 90;
+
     /**
      * Get dashboard summary statistics.
      */
@@ -80,12 +82,14 @@ class AnalyticsService
             $query->where('description', 'like', '%' . $filters['search'] . '%');
         }
 
-        if (!empty($filters['start_date'])) {
-            $query->where('created_at', '>=', Carbon::parse($filters['start_date'])->startOfDay());
+        $startDate = $this->parseFilterDate($filters['start_date'] ?? null, false);
+        if ($startDate !== null) {
+            $query->where('created_at', '>=', $startDate);
         }
 
-        if (!empty($filters['end_date'])) {
-            $query->where('created_at', '<=', Carbon::parse($filters['end_date'])->endOfDay());
+        $endDate = $this->parseFilterDate($filters['end_date'] ?? null, true);
+        if ($endDate !== null) {
+            $query->where('created_at', '<=', $endDate);
         }
 
         if (!empty($filters['event_types']) && is_array($filters['event_types'])) {
@@ -174,14 +178,7 @@ class AnalyticsService
     protected function getRecentTimeline(array $filters = []): array
     {
         $days = [];
-        $endDate = isset($filters['end_date']) ? now()->parse($filters['end_date'])->endOfDay() : now()->endOfDay();
-        $startDate = isset($filters['start_date']) ? now()->parse($filters['start_date'])->startOfDay() : $endDate->copy()->subDays(6)->startOfDay();
-
-        // Ensure we don't exceed 90 days to prevent performance issues
-        $maxDays = 90;
-        if ($startDate->diffInDays($endDate) > $maxDays) {
-            $startDate = $endDate->copy()->subDays($maxDays)->startOfDay();
-        }
+        [$startDate, $endDate] = $this->resolveAnalyticsDateRange($filters, 6);
 
         $dailyCounts = Activity::query()
             ->selectRaw('DATE(created_at) as activity_date, COUNT(*) as aggregate_count')
@@ -293,8 +290,7 @@ class AnalyticsService
      */
     protected function getActivityTrends(int $days = 30, array $filters = []): array
     {
-        $endDate = isset($filters['end_date']) ? now()->parse($filters['end_date'])->endOfDay() : now()->endOfDay();
-        $startDate = isset($filters['start_date']) ? now()->parse($filters['start_date'])->startOfDay() : $endDate->copy()->subDays($days)->startOfDay();
+        [$startDate, $endDate] = $this->resolveAnalyticsDateRange($filters, $days);
 
         $activities = Activity::select(
                 DB::raw('DATE(created_at) as date'),
@@ -360,6 +356,89 @@ class AnalyticsService
         unset($filters['start_date'], $filters['end_date'], $filters['date_preset']);
 
         return $filters;
+    }
+
+    protected function resolveAnalyticsDateRange(array $filters, int $defaultDays): array
+    {
+        if ($this->shouldUseAllTimeRange($filters)) {
+            $allTimeRange = $this->getAllTimeRange($filters);
+
+            if ($allTimeRange !== null) {
+                return $allTimeRange;
+            }
+        }
+
+        $endDate = $this->parseFilterDate($filters['end_date'] ?? null, true) ?? now()->endOfDay();
+        $defaultDays = max(0, $defaultDays);
+        $startDate = $this->parseFilterDate($filters['start_date'] ?? null, false)
+            ?? $endDate->copy()->subDays($defaultDays)->startOfDay();
+
+        if ($startDate->greaterThan($endDate)) {
+            [$startDate, $endDate] = [
+                $endDate->copy()->startOfDay(),
+                $startDate->copy()->endOfDay(),
+            ];
+        }
+
+        $maxDays = max(1, (int) config(
+            'spatie-activitylog-ui.analytics.max_range_days',
+            self::DEFAULT_MAX_ANALYTICS_RANGE_DAYS
+        ));
+
+        if ($startDate->diffInDays($endDate) > $maxDays) {
+            $startDate = $endDate->copy()->subDays($maxDays)->startOfDay();
+        }
+
+        return [$startDate, $endDate];
+    }
+
+    protected function shouldUseAllTimeRange(array $filters): bool
+    {
+        return ($filters['analytics_period'] ?? null) === 'all'
+            && $this->parseFilterDate($filters['start_date'] ?? null, false) === null
+            && $this->parseFilterDate($filters['end_date'] ?? null, true) === null;
+    }
+
+    protected function getAllTimeRange(array $filters): ?array
+    {
+        $dateBounds = Activity::query()
+            ->tap(fn ($query) => $this->applyFilters($query, $this->withoutDateFilters($filters)))
+            ->selectRaw('MIN(created_at) as first_activity_at, MAX(created_at) as last_activity_at')
+            ->first();
+
+        $startDate = $this->parseFilterDate($dateBounds?->first_activity_at, false);
+        $endDate = $this->parseFilterDate($dateBounds?->last_activity_at, true);
+
+        if ($startDate === null || $endDate === null) {
+            return null;
+        }
+
+        return [$startDate, $endDate];
+    }
+
+    protected function parseFilterDate(mixed $value, bool $endOfDay): ?Carbon
+    {
+        if ($value instanceof Carbon) {
+            return $endOfDay ? $value->copy()->endOfDay() : $value->copy()->startOfDay();
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            $date = Carbon::instance($value);
+
+            return $endOfDay ? $date->endOfDay() : $date->startOfDay();
+        }
+
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            $date = Carbon::parse($value);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $endOfDay ? $date->endOfDay() : $date->startOfDay();
     }
 
     /**

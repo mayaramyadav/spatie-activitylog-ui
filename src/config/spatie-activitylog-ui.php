@@ -177,6 +177,7 @@ return [
     */
     'analytics' => [
         'cache_duration' => 3600, // seconds
+        'max_range_days' => 90,
         'chart_colors' => [
             'created' => '#10b981',
             'updated' => '#3b82f6',
