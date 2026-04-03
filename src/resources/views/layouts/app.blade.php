@@ -590,19 +590,20 @@
                             if (response.ok) {
                                 const result = await response.json();
                                 const data = result.data || {};
+                                const totals = data.stats || {};
 
-                                this.stats = data.stats || {
-                                    total: '0',
-                                    today: '0',
-                                    active_users: '0',
-                                    activities_this_week: '0',
-                                    activities_this_month: '0',
+                                this.stats = {
+                                    total: data.total_activities ?? totals.total ?? '0',
+                                    today: data.activities_today ?? totals.today ?? '0',
+                                    active_users: totals.active_users ?? '0',
+                                    activities_this_week: data.activities_this_week ?? totals.this_week ?? '0',
+                                    activities_this_month: data.activities_this_month ?? '0',
                                 };
 
-                                this.eventTypes = data.event_types || [];
-                                this.topUsers = data.top_users || [];
-                                this.timeline = data.timeline || [];
-                                this.popularModels = data.popular_models || [];
+                                this.eventTypes = Array.isArray(data.event_types) ? data.event_types : [];
+                                this.topUsers = Array.isArray(data.top_users) ? data.top_users : [];
+                                this.timeline = Array.isArray(data.timeline) ? data.timeline : [];
+                                this.popularModels = Array.isArray(data.popular_models) ? data.popular_models : [];
                                 this.activityTrends = data.activity_trends || {};
 
                                 if (this.activityTrends?.dates?.length && this.activityTrends?.datasets?.length) {
