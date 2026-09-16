@@ -13,7 +13,7 @@
         $defaultFaviconIcoUrl = asset('vendor/spatie-activitylog-ui/images/favicon.ico')
             . (file_exists($defaultFaviconIcoPath) ? '?v=' . md5_file($defaultFaviconIcoPath) : '');
 
-        $logoUrl = config('spatie-activitylog-ui.ui.logo') ?: $defaultLogoUrl;
+        $logoUrl = config('spatie-activitylog-ui.ui.logo');
         $faviconUrl = config('spatie-activitylog-ui.ui.favicon');
     @endphp
     <meta charset="utf-8">
@@ -1031,7 +1031,25 @@
                     <div class="flex items-center">
                         <!-- Logo -->
                         <div class="flex-shrink-0 flex items-center">
-                            <img class="h-8 w-auto" src="{{ $logoUrl }}" alt="{{ config('spatie-activitylog-ui.ui.brand') }}">
+                            @if($logoUrl)
+                                <img class="h-8 w-auto" src="{{ $logoUrl }}" alt="{{ config('spatie-activitylog-ui.ui.brand') }}">
+                            @else
+                                <a href="{{ route('spatie-activitylog-ui.dashboard') }}"
+                                   class="flex items-center gap-2.5 text-gray-900 dark:text-white"
+                                   aria-label="{{ config('spatie-activitylog-ui.ui.brand', 'ActivityLog UI') }}">
+                                    <svg class="h-8 w-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                        <rect width="32" height="32" rx="8" fill="url(#activity-log-gradient)"/>
+                                        <path d="M9 9v14M9 11h3a3 3 0 0 1 0 6H9m7-8v14m0-14h3a3 3 0 0 1 0 6h-3m7-6v14" stroke="white" stroke-width="2.1" stroke-linecap="round"/>
+                                        <defs>
+                                            <linearGradient id="activity-log-gradient" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#60A5FA"/>
+                                                <stop offset="1" stop-color="#8B5CF6"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <span class="text-lg font-semibold tracking-tight">{{ config('spatie-activitylog-ui.ui.brand', 'ActivityLog UI') }}</span>
+                                </a>
+                            @endif
                         </div>
 
                         <!-- Navigation Links -->

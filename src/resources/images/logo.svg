@@ -1,58 +1,33 @@
-<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background gradient -->
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="48" viewBox="0 0 220 48" role="img" aria-labelledby="title">
+  <title id="title">ActivityLog UI</title>
   <defs>
-    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    <linearGradient id="iconGradient" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
     </linearGradient>
   </defs>
 
-  <!-- Icon container -->
-  <rect x="2" y="4" width="32" height="32" rx="8" fill="url(#logoGradient)"/>
+  <!-- ActivityLog icon -->
+  <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#iconGradient)"/>
 
-  <!-- Activity log icon -->
-  <g transform="translate(8, 10)">
-    <!-- Document base -->
-    <path d="M4 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V6.414A2 2 0 0017.414 5L15 2.586A2 2 0 0013.586 2H4z"
-          fill="white" fill-opacity="0.9"/>
+  <!-- Timeline -->
+  <path d="M15 11v26" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="15" cy="13" r="3.3" fill="#fff"/>
+  <circle cx="15" cy="24" r="3.3" fill="#fff"/>
+  <circle cx="15" cy="35" r="3.3" fill="#fff"/>
 
-    <!-- Activity lines -->
-    <circle cx="6" cy="8" r="1.5" fill="white"/>
-    <line x1="9" y1="8" x2="14" y2="8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Activity pulse -->
+  <path d="M21 31h5l3-7 4 9 5-15 4 7"
+        fill="none" stroke="#fff" stroke-width="3.2"
+        stroke-linecap="round" stroke-linejoin="round"/>
 
-    <circle cx="6" cy="12" r="1.5" fill="white"/>
-    <line x1="9" y1="12" x2="13" y2="12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-
-    <circle cx="6" cy="16" r="1.5" fill="white"/>
-    <line x1="9" y1="16" x2="12" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-  </g>
-
-  <!-- Text with CSS custom properties for dark mode adaptation -->
-  <text x="42" y="16" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="var(--logo-text-primary, #1F2937)">
-    ActivityLog
-  </text>
-  <text x="42" y="28" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="500" fill="var(--logo-text-secondary, #6B7280)">
-    UI
-  </text>
-
-  <!-- CSS for dark mode adaptation -->
-  <style>
-    :root {
-      --logo-text-primary: #1F2937;
-      --logo-text-secondary: #6B7280;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --logo-text-primary: #F9FAFB;
-        --logo-text-secondary: #D1D5DB;
-      }
-    }
-
-    /* Support for explicit dark mode class */
-    .dark {
-      --logo-text-primary: #F9FAFB;
-      --logo-text-secondary: #D1D5DB;
-    }
-  </style>
+  <!-- Wordmark -->
+  <text x="56" y="31"
+        font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-size="21" font-weight="600" letter-spacing="-0.4"
+        fill="#0F172A" stroke="#fff" stroke-width="1.2" paint-order="stroke">ActivityLog</text>
+  <text x="166" y="31"
+        font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-size="21" font-weight="500" letter-spacing="-0.4"
+        fill="#3B82F6" stroke="#fff" stroke-width="1.2" paint-order="stroke">UI</text>
 </svg>
