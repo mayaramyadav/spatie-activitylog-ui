@@ -152,12 +152,15 @@ class ActivitylogService
      */
     public function getAvailableCausers(): Collection
     {
-        $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.causers';
+        // Version the key so installations do not retain empty results from
+        // the previous causer lookup implementation.
+        $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.causers.v2';
 
         return $this->ensureCollection(Cache::remember($cacheKey, 3600, function () {
-            return Activity::select('causer_type', 'causer_id')
+            return Activity::select('id', 'causer_type', 'causer_id')
                 ->whereNotNull('causer_type')
                 ->whereNotNull('causer_id')
+                ->whereHas('causer')
                 ->with('causer')
                 ->distinct()
                 ->get()
