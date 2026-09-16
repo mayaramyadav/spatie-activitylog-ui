@@ -7,7 +7,8 @@ use Illuminate\Support\ServiceProvider;
 
 class SpatieActivitylogUiServiceProvider extends ServiceProvider
 {
-   
+    public const VERSION = '1.0.0';
+
     public function register(): void
     {
         // Merge package configuration

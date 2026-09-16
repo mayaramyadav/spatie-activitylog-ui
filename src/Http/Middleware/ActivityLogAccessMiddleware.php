@@ -32,7 +32,11 @@ class ActivityLogAccessMiddleware
                 }
 
                 // Check allowed roles
-                if (!empty($allowedRoles) && !$request->user()->hasAnyRole($allowedRoles)) {
+                if (
+                    !empty($allowedRoles)
+                    && (!method_exists($request->user(), 'hasAnyRole')
+                        || !$request->user()->hasAnyRole($allowedRoles))
+                ) {
                     abort(403, 'User role not allowed to access Activity Log UI.');
                 }
             }

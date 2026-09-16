@@ -33,7 +33,7 @@ class ActivityLogController extends Controller
 
         $filters = $this->getFiltersFromRequest($request);
         $view = $request->get('view', config('spatie-activitylog-ui.ui.default_view', 'table'));
-        $perPage = $request->get('per_page', config('spatie-activitylog-ui.ui.default_per_page', 25));
+        $perPage = $this->getPerPage($request);
 
         // Get activities based on view type
         if ($view === 'timeline') {
@@ -74,7 +74,7 @@ class ActivityLogController extends Controller
 
         $filters = $this->getFiltersFromRequest($request);
         $view = $request->get('view', config('spatie-activitylog-ui.ui.default_view', 'table'));
-        $perPage = $request->get('per_page', config('spatie-activitylog-ui.ui.default_per_page', 25));
+        $perPage = $this->getPerPage($request);
 
         if ($view === 'timeline') {
             $data = $this->activitylogService->getTimelineActivities($filters, $perPage);
@@ -277,7 +277,7 @@ class ActivityLogController extends Controller
     {
         $this->authorize('viewActivityLogUi');
 
-        $days = $request->get('days', 365);
+        $days = min(max((int) $request->get('days', 365), 1), 3650);
         $heatmapData = $this->analyticsService->getActivityHeatmap($days);
 
         return response()->json([
@@ -293,8 +293,8 @@ class ActivityLogController extends Controller
     {
         $this->authorize('viewActivityLogUi');
 
-        $hours = $request->get('hours', 1);
-        $limit = $request->get('limit', 50);
+        $hours = min(max((int) $request->get('hours', 1), 1), 168);
+        $limit = min(max((int) $request->get('limit', 50), 1), 100);
 
         $activities = $this->activitylogService->getRecentActivities($hours, $limit);
 
@@ -313,7 +313,7 @@ class ActivityLogController extends Controller
             $this->authorize('viewActivityLogUi');
 
             $filters = $this->getFiltersFromRequest($request);
-            $perPage = $request->get('per_page', 25);
+            $perPage = $this->getPerPage($request);
 
             $activities = $this->activitylogService->getActivities($filters, $perPage);
 
@@ -524,6 +524,14 @@ class ActivityLogController extends Controller
             'event_types' => $this->getArrayFromRequest($request, 'event_types'),
             'property_key' => $request->get('property_key'),
         ];
+    }
+
+    protected function getPerPage(Request $request): int
+    {
+        return min(max((int) $request->get(
+            'per_page',
+            config('spatie-activitylog-ui.ui.default_per_page', 25)
+        ), 1), 100);
     }
 
     /**

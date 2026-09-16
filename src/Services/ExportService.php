@@ -95,7 +95,7 @@ class ExportService
 
         $csvData = $this->prepareCsvData($activities, $options);
 
-        $handle = fopen(Storage::path($path), 'w');
+        $handle = fopen('php://temp', 'w+');
 
         // Write header
         if (!empty($csvData)) {
@@ -107,7 +107,11 @@ class ExportService
             fputcsv($handle, $row, ',', '"', '\\');
         }
 
+        rewind($handle);
+        $contents = stream_get_contents($handle);
         fclose($handle);
+
+        $this->storageDisk()->put($path, $contents);
 
         return $path;
     }
@@ -126,7 +130,7 @@ class ExportService
         $filename = $this->generateFilename('xlsx');
         $path = $this->getExportPath($filename);
 
-        Excel::store(new ActivitiesExport($activities, $options), $path);
+        Excel::store(new ActivitiesExport($activities, $options), $path, $this->storageDiskName());
 
         return $path;
     }
@@ -160,7 +164,7 @@ class ExportService
             $pdf->setPaper('a4', 'landscape');
         }
 
-        Storage::put($path, $pdf->output());
+        $this->storageDisk()->put($path, $pdf->output());
 
         return $path;
     }
@@ -201,7 +205,7 @@ class ExportService
             }),
         ];
 
-        Storage::put($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $this->storageDisk()->put($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         return $path;
     }
@@ -265,7 +269,7 @@ class ExportService
      */
     public function getDownloadUrl(string $path): string
     {
-        $disk = config('spatie-activitylog-ui.exports.disk', 'local');
+        $disk = $this->storageDiskName();
 
         if ($disk === 'local') {
             return route('spatie-activitylog-ui.export.download', ['path' => base64_encode($path)]);
@@ -288,15 +292,16 @@ class ExportService
         $cutoff = now()->subHours($hours);
 
         $basePath = config('spatie-activitylog-ui.exports.path', 'exports/activity-logs');
-        $files = Storage::files($basePath);
+        $disk = $this->storageDisk();
+        $files = $disk->files($basePath);
 
         $deletedCount = 0;
 
         foreach ($files as $file) {
-            $lastModified = Storage::lastModified($file);
+            $lastModified = $disk->lastModified($file);
 
             if ($lastModified < $cutoff->timestamp) {
-                Storage::delete($file);
+                $disk->delete($file);
                 $deletedCount++;
             }
         }
@@ -307,6 +312,16 @@ class ExportService
         ]);
 
         return $deletedCount;
+    }
+
+    protected function storageDiskName(): string
+    {
+        return config('spatie-activitylog-ui.exports.disk', 'local');
+    }
+
+    protected function storageDisk()
+    {
+        return Storage::disk($this->storageDiskName());
     }
 
     /**

@@ -12,6 +12,13 @@ $name = $config['name'] ?? 'spatie-activitylog-ui.';
 $middleware = ['web'];
 if (config('spatie-activitylog-ui.authorization.enabled', false)) {
     $middleware[] = 'auth';
+}
+
+if (
+    config('spatie-activitylog-ui.authorization.enabled', false)
+    || !empty(config('spatie-activitylog-ui.access.allowed_users', []))
+    || !empty(config('spatie-activitylog-ui.access.allowed_roles', []))
+) {
     $middleware[] = \Mayaram\SpatieActivitylogUi\Http\Middleware\ActivityLogAccessMiddleware::class;
 }
 

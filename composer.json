@@ -4,7 +4,7 @@
     "keywords": [
         "spatie",
         "laravel-activitylog",
-        "activitylog",
+        "activitylog ui",
         "audit",
         "audit-log",
         "audit-trail",
@@ -34,7 +34,7 @@
     "authors": [
         {
             "name": "Mayaram",
-            "email": "info@mayaram.in",
+            "email": "contact.mayaram@gmail.com",
             "role": "Developer"
         }
     ],

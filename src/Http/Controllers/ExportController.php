@@ -124,23 +124,34 @@ class ExportController extends Controller
             'path' => 'required|string',
         ]);
 
-        $path = base64_decode($request->get('path'));
+        $path = base64_decode($request->get('path'), true);
 
         // Security check: ensure path is within exports directory
-        $exportPath = config('spatie-activitylog-ui.exports.path', 'exports/activity-logs');
-        if (!str_starts_with($path, $exportPath)) {
+        $exportPath = trim(config('spatie-activitylog-ui.exports.path', 'exports/activity-logs'), '/');
+        $normalizedPath = is_string($path)
+            ? trim(str_replace('\\', '/', $path), '/')
+            : '';
+        $pathParts = $normalizedPath === '' ? [] : explode('/', $normalizedPath);
+
+        if (
+            $normalizedPath === ''
+            || in_array('..', $pathParts, true)
+            || ($normalizedPath !== $exportPath && !str_starts_with($normalizedPath, $exportPath . '/'))
+        ) {
             abort(403, 'Invalid file path.');
         }
 
-        if (!Storage::exists($path)) {
+        $disk = Storage::disk(config('spatie-activitylog-ui.exports.disk', 'local'));
+
+        if (!$disk->exists($normalizedPath)) {
             abort(404, 'File not found.');
         }
 
-        $filename = basename($path);
-        $mimeType = $this->getMimeType($path);
+        $filename = basename($normalizedPath);
+        $mimeType = $this->getMimeType($normalizedPath);
 
         return response()->download(
-            Storage::path($path),
+            $disk->path($normalizedPath),
             $filename,
             ['Content-Type' => $mimeType]
         );
