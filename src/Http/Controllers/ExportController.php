@@ -88,6 +88,7 @@ class ExportController extends Controller
 
             // Export immediately with filters
             $filePath = $this->exportService->export($filters, $format, $options);
+            $this->exportService->registerExportOwner($filePath, $request->user()?->id);
             $downloadUrl = $this->exportService->getDownloadUrl($filePath);
 
             return response()->json([
@@ -147,6 +148,11 @@ class ExportController extends Controller
             abort(404, 'File not found.');
         }
 
+        $ownerId = $this->exportService->exportOwner($normalizedPath);
+        if ($ownerId !== null && $ownerId !== $request->user()?->id) {
+            abort(403, 'You are not allowed to download this export.');
+        }
+
         $filename = basename($normalizedPath);
         $mimeType = $this->getMimeType($normalizedPath);
 
@@ -170,6 +176,11 @@ class ExportController extends Controller
 
         $jobId = $request->get('job_id');
         $progress = $this->exportService->getExportProgress($jobId);
+
+        if (($progress['user_id'] ?? null) !== null
+            && $progress['user_id'] !== $request->user()?->id) {
+            abort(403, 'You are not allowed to view this export.');
+        }
 
         return response()->json([
             'success' => true,
@@ -201,7 +212,7 @@ class ExportController extends Controller
             'data' => [
                 'formats' => $formatsWithDetails,
                 'max_records' => $maxRecords,
-                'queue_enabled' => config('spatie-activitylog-ui.exports.queue', true),
+                'queue_enabled' => (bool) config('spatie-activitylog-ui.exports.queue.enabled', false),
             ],
         ]);
     }
@@ -212,6 +223,14 @@ class ExportController extends Controller
     public function cleanup(): JsonResponse
     {
         $this->authorizeAccess();
+
+        if (config('spatie-activitylog-ui.authorization.enabled', false)) {
+            abort_unless(
+                request()->user()?->can('manageActivityLogExports'),
+                403,
+                'You are not allowed to clean up activity log exports.'
+            );
+        }
 
         $deletedCount = $this->exportService->cleanupOldExports();
 
@@ -240,7 +259,7 @@ class ExportController extends Controller
 
     protected function authorizeAccess(): void
     {
-        if (!config('spatie-activitylog-ui.authorization.enabled', true)) {
+        if (!config('spatie-activitylog-ui.authorization.enabled', false)) {
             return;
         }
 

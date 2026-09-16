@@ -62,6 +62,8 @@ class ExportService
             ->when($filters, function ($query) use ($filters) {
                 return App::make(ActivitylogService::class)->applyFilters($query, $filters);
             })
+            ->orderBy('id')
+            ->limit($limit)
             ->chunk($chunkSize, function ($chunk) use (&$activities, $limit) {
                 if ($activities->count() >= $limit) {
                     return false;
@@ -123,8 +125,7 @@ class ExportService
     {
         // Check if Laravel Excel is available
         if (!class_exists(\Maatwebsite\Excel\Facades\Excel::class)) {
-            // Fallback to CSV format
-            return $this->exportToCsv($activities, $options);
+            throw new \RuntimeException('XLSX export requires maatwebsite/excel to be installed.');
         }
 
         $filename = $this->generateFilename('xlsx');
@@ -142,8 +143,7 @@ class ExportService
     {
         // Check if DomPDF is available
         if (!class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-            // Fallback to JSON format
-            return $this->exportToJson($activities, $options);
+            throw new \RuntimeException('PDF export requires barryvdh/laravel-dompdf to be installed.');
         }
 
         $filename = $this->generateFilename('pdf');
@@ -272,10 +272,23 @@ class ExportService
         $disk = $this->storageDiskName();
 
         if ($disk === 'local') {
-            return route('spatie-activitylog-ui.export.download', ['path' => base64_encode($path)]);
+            $routeName = rtrim(config('spatie-activitylog-ui.route.name', 'spatie-activitylog-ui.'), '.') . '.export.download';
+            return route($routeName, ['path' => base64_encode($path)]);
         }
 
         return Storage::disk($disk)->url($path);
+    }
+
+    public function registerExportOwner(string $path, ?int $userId): void
+    {
+        if ($userId !== null) {
+            cache()->put('activitylog_export_owner_' . sha1($path), $userId, now()->addHours(24));
+        }
+    }
+
+    public function exportOwner(string $path): ?int
+    {
+        return cache()->get('activitylog_export_owner_' . sha1($path));
     }
 
     /**
@@ -411,7 +424,7 @@ class ExportService
      */
     public function queueExport(array $filters, string $format, array $options = [], ?int $userId = null): string
     {
-        $jobId = uniqid('export_');
+        $jobId = 'export_' . Str::lower(Str::random(32));
 
         // Auto-cleanup old files if enabled
         if (config('spatie-activitylog-ui.exports.cleanup.auto_run', true)) {
@@ -426,6 +439,7 @@ class ExportService
                 'message' => 'Export queued for processing...',
                 'progress' => 0,
                 'download_url' => null,
+                'user_id' => $userId,
                 'created_at' => now()->toISOString(),
                 'updated_at' => now()->toISOString(),
             ];

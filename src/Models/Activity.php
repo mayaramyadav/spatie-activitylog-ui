@@ -14,11 +14,28 @@ class Activity extends SpatieActivity
      * The attributes that should be cast.
      */
     protected $casts = [
-        'attribute_changes' => 'collection',
         'properties' => 'collection',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Spatie Activitylog v5 stores model changes in the `properties` JSON
+     * column. Keep the package's legacy attribute_changes API as a virtual
+     * compatibility alias without querying a non-existent database column.
+     */
+    public function getAttributeChangesAttribute(mixed $value): Collection
+    {
+        if (is_string($value)) {
+            $value = json_decode($value, true) ?: [];
+        }
+
+        $changes = $value ?? $this->getAttribute('properties');
+
+        return $changes instanceof Collection
+            ? $changes
+            : collect($changes ?? []);
+    }
 
     /**
      * Get the causer (user who performed the activity).
@@ -123,7 +140,6 @@ class Activity extends SpatieActivity
 
         return $query->where(function (Builder $q) use ($search) {
             $q->where('description', 'like', "%{$search}%")
-              ->orWhere('attribute_changes', 'like', "%{$search}%")
               ->orWhere('properties', 'like', "%{$search}%")
               ->orWhereHas('causer', function (Builder $causerQuery) use ($search) {
                   $causerQuery->where('name', 'like', "%{$search}%")
