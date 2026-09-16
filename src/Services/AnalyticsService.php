@@ -79,10 +79,23 @@ class AnalyticsService
     protected function applyFilters($query, array $filters = [])
     {
         if (!empty($filters['search'])) {
-            $query->where('description', 'like', '%' . $filters['search'] . '%');
+            $search = '%' . $filters['search'] . '%';
+            $query->where(function ($searchQuery) use ($search) {
+                $searchQuery->where('log_name', 'like', $search)
+                    ->orWhere('description', 'like', $search)
+                    ->orWhere('properties', 'like', $search)
+                    ->orWhere('attribute_changes', 'like', $search);
+            });
+        }
+
+        if (!empty($filters['log_name'])) {
+            $query->where('log_name', $filters['log_name']);
         }
 
         $startDate = $this->parseFilterDate($filters['start_date'] ?? null, false);
+        if (!empty($filters['activity_date'])) {
+            $query->whereDate('created_at', $filters['activity_date']);
+        }
         if ($startDate !== null) {
             $query->where('created_at', '>=', $startDate);
         }
@@ -107,6 +120,14 @@ class AnalyticsService
 
         if (!empty($filters['subject_type'])) {
             $query->where('subject_type', $filters['subject_type']);
+        }
+
+        if (!empty($filters['property_key'])) {
+            $propertyKey = addcslashes($filters['property_key'], '%_');
+            $query->where(function ($propertyQuery) use ($propertyKey) {
+                $propertyQuery->where('properties', 'like', '%"'.$propertyKey.'"%')
+                    ->orWhere('attribute_changes', 'like', '%"'.$propertyKey.'"%');
+            });
         }
 
         return $query;

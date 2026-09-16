@@ -3,6 +3,7 @@
      x-init="availableCausers = @js(collect($filterOptions['causers'] ?? [])->values()->all());
          availableSubjectTypes = @js(collect($filterOptions['subject_types'] ?? [])->values()->all());
          availableEventTypes = @js(collect($filterOptions['event_types'] ?? [])->values()->all());
+         availableLogNames = @js(collect($filterOptions['log_names'] ?? [])->values()->all());
          filteredCausers = availableCausers;
          init();
          $watch('filters.date_preset', value => {
@@ -16,6 +17,15 @@
          });
          $watch('filters.search', value => {
              localStorage.setItem('activitylog_search', value || '');
+         });
+         $watch('filters.log_name', value => {
+             localStorage.setItem('activitylog_log_name', value || '');
+         });
+         $watch('filters.property_key', value => {
+             localStorage.setItem('activitylog_property_key', value || '');
+         });
+         $watch('filters.activity_date', value => {
+             localStorage.setItem('activitylog_activity_date', value || '');
          });
          $watch('filters.event_types', value => {
              localStorage.setItem('activitylog_event_types', JSON.stringify(value || []));
@@ -527,6 +537,17 @@
             </div>
         </div>
 
+        <div x-show="availableLogNames.length > 0">
+            <label for="log_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Log channel</label>
+            <select id="log_name" x-model="filters.log_name" @change="applyFilters()"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">All log channels</option>
+                <template x-for="logName in availableLogNames" :key="logName">
+                    <option :value="logName" x-text="logName"></option>
+                </template>
+            </select>
+        </div>
+
         <!-- Filter Grid -->
         <div class="grid grid-cols-1 gap-4 sm:gap-6">
 
@@ -535,6 +556,12 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date Range
                 </label>
+
+                <div class="mb-3">
+                    <label for="activity_date" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">On a particular date</label>
+                    <input id="activity_date" type="date" x-model="filters.activity_date" @change="applyFilters()"
+                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
 
                     <!-- Date Presets -->
                 <div class="flex flex-wrap gap-1 sm:gap-2 mb-3">
@@ -687,6 +714,14 @@
                         <option :value="subjectType.value" x-text="subjectType.label"></option>
                     </template>
                 </select>
+            </div>
+
+            <div>
+                <label for="property_key" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Property key</label>
+                <input id="property_key" type="text" x-model="filters.property_key" @input.debounce.300ms="applyFilters()"
+                       placeholder="e.g. status or email"
+                       class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Search keys in properties and attribute changes.</p>
             </div>
 
         </div>

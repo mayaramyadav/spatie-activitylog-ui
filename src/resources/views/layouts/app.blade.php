@@ -133,6 +133,9 @@
                     defaultFilters() {
                         return {
                             search: '',
+                            log_name: '',
+                            property_key: '',
+                            activity_date: '',
                             date_preset: 'all',
                             start_date: '',
                             end_date: '',
@@ -146,6 +149,9 @@
                     // Filter state
                     filters: {
                         search: '',
+                        log_name: '',
+                        property_key: '',
+                        activity_date: '',
                         date_preset: 'all',
                         start_date: '',
                         end_date: '',
@@ -160,6 +166,7 @@
                     savedViews: [],
                     @endif
                     availableEventTypes: [],
+                    availableLogNames: [],
                     availableSubjectTypes: [],
                     availableCausers: [],
                     filteredCausers: [],
@@ -201,6 +208,7 @@
                             this.availableCausers.length === 0 ||
                             this.availableSubjectTypes.length === 0 ||
                             this.availableEventTypes.length === 0
+                            || this.availableLogNames.length === 0
                         ) {
                             await this.loadCausers();
                         }
@@ -233,6 +241,7 @@
                                 if (data.event_types) {
                                     this.availableEventTypes = this.normalizeEventTypes(data.event_types);
                                 }
+                                this.availableLogNames = Array.isArray(data.log_names) ? data.log_names : this.availableLogNames;
                             } else {
                                 throw new Error('Failed to load filter options');
                             }
@@ -459,6 +468,9 @@
                         localStorage.removeItem('activitylog_start_date');
                         localStorage.removeItem('activitylog_end_date');
                         localStorage.removeItem('activitylog_search');
+                        localStorage.removeItem('activitylog_activity_date');
+                        localStorage.removeItem('activitylog_log_name');
+                        localStorage.removeItem('activitylog_property_key');
                         localStorage.removeItem('activitylog_event_types');
                         localStorage.removeItem('activitylog_causer_type');
                         localStorage.removeItem('activitylog_causer_id');
@@ -499,6 +511,9 @@
                         const savedStartDate = localStorage.getItem('activitylog_start_date');
                         const savedEndDate = localStorage.getItem('activitylog_end_date');
                         const savedSearch = localStorage.getItem('activitylog_search');
+                        const savedLogName = localStorage.getItem('activitylog_log_name');
+                        const savedPropertyKey = localStorage.getItem('activitylog_property_key');
+                        const savedActivityDate = localStorage.getItem('activitylog_activity_date');
                         const savedEventTypes = localStorage.getItem('activitylog_event_types');
                         const savedCauserType = localStorage.getItem('activitylog_causer_type');
                         const savedCauserId = localStorage.getItem('activitylog_causer_id');
@@ -509,6 +524,9 @@
                         if (savedStartDate) this.filters.start_date = savedStartDate;
                         if (savedEndDate) this.filters.end_date = savedEndDate;
                         if (savedSearch) this.filters.search = savedSearch;
+                        if (savedLogName) this.filters.log_name = savedLogName;
+                        if (savedPropertyKey) this.filters.property_key = savedPropertyKey;
+                        if (savedActivityDate) this.filters.activity_date = savedActivityDate;
                         if (savedSubjectType) this.filters.subject_type = savedSubjectType;
                         if (savedCauserType) this.filters.causer_type = savedCauserType;
                         if (savedCauserId) this.filters.causer_id = savedCauserId ? parseInt(savedCauserId) : null;

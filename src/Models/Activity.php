@@ -14,6 +14,7 @@ class Activity extends SpatieActivity
      * The attributes that should be cast.
      */
     protected $casts = [
+        'attribute_changes' => 'collection',
         'properties' => 'collection',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -42,7 +43,7 @@ class Activity extends SpatieActivity
      */
     public function causer(): MorphTo
     {
-        return $this->morphTo()->withoutGlobalScopes()->withDefault();
+        return $this->morphTo()->withoutGlobalScopes();
     }
 
     /**
@@ -50,7 +51,7 @@ class Activity extends SpatieActivity
      */
     public function subject(): MorphTo
     {
-        return $this->morphTo()->withDefault();
+        return $this->morphTo();
     }
 
     /**
@@ -139,8 +140,10 @@ class Activity extends SpatieActivity
         }
 
         return $query->where(function (Builder $q) use ($search) {
-            $q->where('description', 'like', "%{$search}%")
+            $q->where('log_name', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%")
               ->orWhere('properties', 'like', "%{$search}%")
+              ->orWhere('attribute_changes', 'like', "%{$search}%")
               ->orWhereHas('causer', function (Builder $causerQuery) use ($search) {
                   $causerQuery->where('name', 'like', "%{$search}%")
                              ->orWhere('email', 'like', "%{$search}%");

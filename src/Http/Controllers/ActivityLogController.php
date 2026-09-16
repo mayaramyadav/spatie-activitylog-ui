@@ -47,6 +47,7 @@ class ActivityLogController extends Controller
             'causers' => $this->activitylogService->getAvailableCausers(),
             'subject_types' => $this->activitylogService->getAvailableSubjectTypes(),
             'event_types' => $this->activitylogService->getAvailableEventTypes(),
+            'log_names' => $this->activitylogService->getAvailableLogNames(),
             'date_presets' => config('spatie-activitylog-ui.filters.date_presets', []),
         ];
 
@@ -424,11 +425,13 @@ class ActivityLogController extends Controller
             $causers = $this->activitylogService->getAvailableCausers();
             $subjectTypes = $this->activitylogService->getAvailableSubjectTypes();
             $eventTypes = $this->activitylogService->getEventTypesWithStyling();
+            $logNames = $this->activitylogService->getAvailableLogNames();
 
             return response()->json([
                 'causers' => $causers,
                 'subject_types' => $subjectTypes,
                 'event_types' => $eventTypes,
+                'log_names' => $logNames,
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to get filter options', [
@@ -514,7 +517,9 @@ class ActivityLogController extends Controller
     {
         return [
             'search' => $request->get('search'),
+            'log_name' => $request->get('log_name'),
             'date_preset' => $request->get('date_preset'),
+            'activity_date' => $request->get('activity_date'),
             'start_date' => $request->get('start_date'),
             'end_date' => $request->get('end_date'),
             'causer_type' => $request->get('causer_type'),

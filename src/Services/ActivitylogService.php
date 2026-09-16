@@ -44,9 +44,15 @@ class ActivitylogService
             $query->search($filters['search']);
         }
 
+        if (!empty($filters['log_name'])) {
+            $query->where('log_name', $filters['log_name']);
+        }
+
         // Date filters
         if (!empty($filters['date_preset']) && $filters['date_preset'] !== 'custom') {
             $query->datePreset($filters['date_preset']);
+        } elseif (!empty($filters['activity_date'])) {
+            $query->whereDate('created_at', $filters['activity_date']);
         } elseif (!empty($filters['start_date']) || !empty($filters['end_date'])) {
             $query->dateRange($filters['start_date'] ?? null, $filters['end_date'] ?? null);
         }
@@ -225,6 +231,16 @@ class ActivitylogService
                 })
                 ->values();
         })));
+    }
+
+    public function getAvailableLogNames(): Collection
+    {
+        $cacheKey = config('spatie-activitylog-ui.performance.cache_prefix') . '.log_names';
+
+        return $this->ensureCollection(Cache::remember($cacheKey, 3600, fn () =>
+            Activity::query()->whereNotNull('log_name')->where('log_name', '!=', '')
+                ->distinct()->orderBy('log_name')->pluck('log_name')->values()
+        ));
     }
 
     /**
